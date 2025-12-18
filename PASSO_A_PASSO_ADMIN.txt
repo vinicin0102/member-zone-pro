@@ -1,0 +1,40 @@
+═══════════════════════════════════════════════════════════════
+  COMO CRIAR USUÁRIO ADMIN - PASSO A PASSO
+═══════════════════════════════════════════════════════════════
+
+1️⃣ PRIMEIRO: Certifique-se que o banco está configurado
+   → Execute SETUP_DATABASE.sql no Supabase Dashboard (SQL Editor)
+
+2️⃣ SEGUNDO: Crie a conta pela aplicação
+   → Acesse: http://localhost:8080/auth
+   → Clique em "Criar conta"
+   → Email: vinicius01@gmail.com
+   → Senha: (escolha uma senha)
+   → Nome: Vinicius (ou seu nome)
+   → Clique em "Criar conta"
+
+3️⃣ TERCEIRO: Torne admin via SQL
+   → Acesse: https://supabase.com/dashboard
+   → Vá em SQL Editor
+   → Execute este SQL:
+
+   UPDATE public.profiles 
+   SET is_admin = true 
+   WHERE email = 'vinicius01@gmail.com';
+
+4️⃣ QUARTO: Verifique se funcionou
+   → Execute este SQL:
+
+   SELECT email, is_admin 
+   FROM public.profiles 
+   WHERE email = 'vinicius01@gmail.com';
+   
+   → Você deve ver is_admin: true
+
+5️⃣ QUINTO: Faça login
+   → Faça logout (se estiver logado)
+   → Faça login com vinicius01@gmail.com
+   → Você verá o botão "Admin"
+   → Acesse /admin para gerenciar conteúdo
+
+═══════════════════════════════════════════════════════════════

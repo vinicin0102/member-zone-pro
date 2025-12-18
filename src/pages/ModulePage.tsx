@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { LessonItem } from '@/components/members/LessonItem';
 import { ProgressBar } from '@/components/members/ProgressBar';
 import { Button } from '@/components/ui/button';
+import { toast } from '@/hooks/use-toast';
 import { ArrowLeft, BookOpen } from 'lucide-react';
 
 interface Module {
@@ -33,21 +34,57 @@ const ModulePage = () => {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [progress, setProgress] = useState<Progress[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userCourseAccess, setUserCourseAccess] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       if (!moduleId) return;
 
       try {
-        // Fetch module
+        // Fetch module com course_id
         const { data: moduleData } = await supabase
           .from('courses_modules')
-          .select('*')
+          .select('*, course_id')
           .eq('id', moduleId)
           .maybeSingle();
 
-        if (moduleData) {
-          setModule(moduleData);
+        if (!moduleData) {
+          navigate('/members');
+          return;
+        }
+
+        setModule(moduleData);
+
+        // Se o módulo tem um course_id, verificar se o curso está bloqueado
+        const courseId = (moduleData as any).course_id;
+        if (courseId && user) {
+          // Buscar informações do curso
+          const { data: courseData } = await (supabase as any)
+            .from('courses')
+            .select('is_locked')
+            .eq('id', courseId)
+            .maybeSingle();
+
+          if (courseData?.is_locked) {
+            // Verificar se o usuário tem acesso
+            const { data: accessData } = await (supabase as any)
+              .from('user_course_access')
+              .select('course_id')
+              .eq('user_id', user.id)
+              .eq('course_id', courseId)
+              .maybeSingle();
+
+            if (!accessData) {
+              // Usuário não tem acesso ao curso bloqueado
+              toast({
+                title: 'Acesso negado',
+                description: 'Você não tem acesso a este curso.',
+                variant: 'destructive'
+              });
+              navigate('/members');
+              return;
+            }
+          }
         }
 
         // Fetch lessons

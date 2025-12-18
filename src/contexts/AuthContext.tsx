@@ -41,7 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [userAccess, setUserAccess] = useState<UserAccess | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Iniciar como false para não bloquear render
 
   const fetchUserData = async (userId: string) => {
     try {
@@ -62,37 +62,64 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
+    let isMounted = true;
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!isMounted) return;
+      
       setSession(session);
       setUser(session?.user ?? null);
 
       if (session?.user) {
-        setTimeout(() => {
-          fetchUserData(session.user.id);
-        }, 0);
+        // Fetch user data em background, não bloqueia render
+        fetchUserData(session.user.id).catch(error => {
+          console.error('Error fetching user data in onAuthStateChange:', error);
+        });
       } else {
         setProfile(null);
         setUserAccess(null);
       }
-      setLoading(false);
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchUserData(session.user.id);
-      }
-      setLoading(false);
-    });
+    // Verificar sessão atual - sem bloquear render
+    supabase.auth.getSession()
+      .then(({ data: { session }, error }) => {
+        if (!isMounted) return;
+        
+        if (error) {
+          console.error('Error getting session:', error);
+          return;
+        }
 
-    return () => subscription.unsubscribe();
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          // Fetch user data em background, não bloqueia render
+          fetchUserData(session.user.id).catch(error => {
+            console.error('Error fetching user data:', error);
+          });
+        }
+      })
+      .catch((error: Error) => {
+        if (!isMounted) return;
+        console.error('Error in getSession:', error);
+      });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, fullName?: string) => {
     const redirectUrl = `${window.location.origin}/`;
-    const { error } = await supabase.auth.signUp({
-      email,
+    const trimmedEmail = email.trim().toLowerCase();
+    
+    console.log('Attempting to sign up with email:', trimmedEmail);
+    
+    const { data, error } = await supabase.auth.signUp({
+      email: trimmedEmail,
       password,
       options: {
         emailRedirectTo: redirectUrl,
@@ -101,6 +128,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
     });
+    
+    if (error) {
+      console.error('Sign up error:', error);
+    } else {
+      console.log('Sign up successful:', data);
+    }
+    
     return { error };
   };
 

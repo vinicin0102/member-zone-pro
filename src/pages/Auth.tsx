@@ -50,13 +50,45 @@ const Auth = () => {
           navigate(from, { replace: true });
         }
       } else {
-        const { error } = await signUp(email, password, fullName);
-        if (error) {
+        // Validação básica de email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email.trim())) {
           toast({
             title: 'Erro ao criar conta',
-            description: error.message.includes('already registered')
-              ? 'Este email já está cadastrado'
-              : error.message,
+            description: 'Por favor, insira um email válido',
+            variant: 'destructive'
+          });
+          setLoading(false);
+          return;
+        }
+
+        // Validação de senha
+        if (password.length < 6) {
+          toast({
+            title: 'Erro ao criar conta',
+            description: 'A senha deve ter pelo menos 6 caracteres',
+            variant: 'destructive'
+          });
+          setLoading(false);
+          return;
+        }
+
+        const { error } = await signUp(email.trim(), password, fullName?.trim());
+        if (error) {
+          let errorMessage = error.message;
+          
+          // Mensagens mais amigáveis
+          if (error.message.includes('already registered') || error.message.includes('already exists')) {
+            errorMessage = 'Este email já está cadastrado. Tente fazer login.';
+          } else if (error.message.includes('invalid') && error.message.includes('email')) {
+            errorMessage = 'Por favor, insira um email válido';
+          } else if (error.message.includes('Password')) {
+            errorMessage = 'A senha deve ter pelo menos 6 caracteres';
+          }
+          
+          toast({
+            title: 'Erro ao criar conta',
+            description: errorMessage,
             variant: 'destructive'
           });
         } else {
@@ -133,9 +165,10 @@ const Auth = () => {
                     type="email"
                     placeholder="seu@email.com"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => setEmail(e.target.value.trim())}
                     className="pl-10"
                     required
+                    pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
                   />
                 </div>
               </div>
