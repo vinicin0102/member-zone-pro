@@ -64,7 +64,7 @@ const Admin = () => {
   const [deleteModuleId, setDeleteModuleId] = useState<string | null>(null);
   const [deleteCourseId, setDeleteCourseId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('courses');
-  
+
   // Banner settings
   const [bannerSettings, setBannerSettings] = useState({
     banner_image_url: '',
@@ -75,7 +75,7 @@ const Admin = () => {
   const [bannerImagePreview, setBannerImagePreview] = useState<string | null>(null);
   const [uploadingBanner, setUploadingBanner] = useState(false);
   const [savingBanner, setSavingBanner] = useState(false);
-  
+
   // Customization settings
   const [customSettings, setCustomSettings] = useState({
     platform_name: '',
@@ -85,7 +85,7 @@ const Admin = () => {
     header_title: ''
   });
   const [savingCustom, setSavingCustom] = useState(false);
-  
+
   // General settings
   const [generalSettings, setGeneralSettings] = useState({
     support_email: '',
@@ -105,7 +105,7 @@ const Admin = () => {
     modules_grid_columns: '3'
   });
   const [savingLayout, setSavingLayout] = useState(false);
-  
+
   // Users management
   const [users, setUsers] = useState<any[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
@@ -132,19 +132,19 @@ const Admin = () => {
       // Buscar cursos
       const { data: coursesData } = await supabase.from('courses').select('*').order('order');
       if (coursesData) setCourses(coursesData);
-      
+
       // Buscar módulos e aulas
       const { data: modulesData } = await supabase.from('courses_modules').select('*').order('order');
       if (modulesData) setModules(modulesData);
-      
+
       const { data: lessonsData } = await supabase.from('courses_lessons').select('*').order('order');
       if (lessonsData) setLessons(lessonsData);
     } catch (error) {
       console.error('Error fetching data:', error);
-      toast({ 
-        title: 'Erro', 
-        description: 'Erro ao atualizar dados.', 
-        variant: 'destructive' 
+      toast({
+        title: 'Erro',
+        description: 'Erro ao atualizar dados.',
+        variant: 'destructive'
       });
     }
   };
@@ -157,19 +157,19 @@ const Admin = () => {
         data.forEach(item => {
           settingsMap[item.key] = item.value || '';
         });
-        
+
         const bannerImageUrl = settingsMap.banner_image_url || '';
         setBannerSettings({
           banner_image_url: bannerImageUrl,
           banner_text: settingsMap.banner_text || '',
           banner_redirect_url: settingsMap.banner_redirect_url || ''
         });
-        
+
         // Se houver URL de imagem salva, usar como preview
         if (bannerImageUrl && !bannerImageUrl.startsWith('data:')) {
           setBannerImagePreview(null); // Será carregada da URL
         }
-        
+
         setCustomSettings({
           platform_name: settingsMap.platform_name || '',
           logo_url: settingsMap.logo_url || '',
@@ -177,7 +177,7 @@ const Admin = () => {
           theme: settingsMap.theme || 'dark',
           header_title: settingsMap.header_title || 'Area De Mentorados'
         });
-        
+
         setGeneralSettings({
           support_email: settingsMap.support_email || '',
           terms_url: settingsMap.terms_url || '',
@@ -208,7 +208,7 @@ const Admin = () => {
         data.forEach((item: any) => {
           settingsMap[item.key] = item.value || '';
         });
-        
+
         setPaymentSettings({
           payment_gateway_name: settingsMap.payment_gateway_name || 'asaas',
           payment_gateway_api_key: settingsMap.payment_gateway_api_key || '',
@@ -224,19 +224,19 @@ const Admin = () => {
 
   const testGatewayConnection = async () => {
     if (!paymentSettings.payment_gateway_api_key) {
-      toast({ 
-        title: 'API Key necessária', 
-        description: 'Preencha a API Key antes de testar', 
-        variant: 'destructive' 
+      toast({
+        title: 'API Key necessária',
+        description: 'Preencha a API Key antes de testar',
+        variant: 'destructive'
       });
       return;
     }
 
     setTestingConnection(true);
-    
+
     // Simular um pequeno delay para feedback visual
     await new Promise(resolve => setTimeout(resolve, 500));
-    
+
     try {
       const gatewayName = paymentSettings.payment_gateway_name;
       const apiKey = paymentSettings.payment_gateway_api_key.trim();
@@ -244,80 +244,80 @@ const Admin = () => {
 
       // Validação básica do formato da API Key
       if (!apiKey) {
-        testResult = { 
-          success: false, 
-          message: '❌ API Key não pode estar vazia' 
+        testResult = {
+          success: false,
+          message: '❌ API Key não pode estar vazia'
         };
       } else if (gatewayName === 'asaas') {
         // Validação básica do formato Asaas
         if (apiKey.length < 10) {
-          testResult = { 
-            success: false, 
-            message: '❌ API Key do Asaas parece estar incompleta (mínimo 10 caracteres)' 
+          testResult = {
+            success: false,
+            message: '❌ API Key do Asaas parece estar incompleta (mínimo 10 caracteres)'
           };
         } else {
-          testResult = { 
-            success: true, 
-            message: '✅ API Key do Asaas configurada corretamente! A validação completa será feita quando o webhook for recebido.' 
+          testResult = {
+            success: true,
+            message: '✅ API Key do Asaas configurada corretamente! A validação completa será feita quando o webhook for recebido.'
           };
         }
       } else if (gatewayName === 'stripe') {
         // Validação básica do formato Stripe (sk_test_ ou sk_live_)
         if (!apiKey.startsWith('sk_')) {
-          testResult = { 
-            success: false, 
-            message: '❌ API Key do Stripe deve começar com "sk_test_" ou "sk_live_"' 
+          testResult = {
+            success: false,
+            message: '❌ API Key do Stripe deve começar com "sk_test_" ou "sk_live_"'
           };
         } else if (apiKey.length < 20) {
-          testResult = { 
-            success: false, 
-            message: '❌ API Key do Stripe parece estar incompleta' 
+          testResult = {
+            success: false,
+            message: '❌ API Key do Stripe parece estar incompleta'
           };
         } else {
-          testResult = { 
-            success: true, 
-            message: '✅ API Key do Stripe configurada corretamente! A validação completa será feita quando o webhook for recebido.' 
+          testResult = {
+            success: true,
+            message: '✅ API Key do Stripe configurada corretamente! A validação completa será feita quando o webhook for recebido.'
           };
         }
       } else if (gatewayName === 'mercadopago') {
         // Validação básica do formato Mercado Pago (APP_USR-)
         if (!apiKey.startsWith('APP_USR-')) {
-          testResult = { 
-            success: false, 
-            message: '❌ API Key do Mercado Pago deve começar com "APP_USR-"' 
+          testResult = {
+            success: false,
+            message: '❌ API Key do Mercado Pago deve começar com "APP_USR-"'
           };
         } else {
-          testResult = { 
-            success: true, 
-            message: '✅ API Key do Mercado Pago configurada corretamente! A validação completa será feita quando o webhook for recebido.' 
+          testResult = {
+            success: true,
+            message: '✅ API Key do Mercado Pago configurada corretamente! A validação completa será feita quando o webhook for recebido.'
           };
         }
       } else {
         // Para outros gateways, apenas valida se a API Key foi preenchida
         if (apiKey.length < 5) {
-          testResult = { 
-            success: false, 
-            message: '❌ API Key parece estar muito curta (mínimo 5 caracteres)' 
+          testResult = {
+            success: false,
+            message: '❌ API Key parece estar muito curta (mínimo 5 caracteres)'
           };
         } else {
-          testResult = { 
-            success: true, 
-            message: `✅ API Key configurada para "${gatewayName}"! Configure o webhook no seu gateway para testar completamente.` 
+          testResult = {
+            success: true,
+            message: `✅ API Key configurada para "${gatewayName}"! Configure o webhook no seu gateway para testar completamente.`
           };
         }
       }
 
-      toast({ 
-        title: testResult.success ? '✅ Validação OK!' : '❌ Erro na validação', 
+      toast({
+        title: testResult.success ? '✅ Validação OK!' : '❌ Erro na validação',
         description: testResult.message,
         variant: testResult.success ? 'default' : 'destructive'
       });
 
     } catch (error: any) {
-      toast({ 
-        title: 'Erro ao validar', 
+      toast({
+        title: 'Erro ao validar',
         description: error.message || 'Não foi possível validar a API Key. Verifique o formato.',
-        variant: 'destructive' 
+        variant: 'destructive'
       });
     } finally {
       setTestingConnection(false);
@@ -326,19 +326,19 @@ const Admin = () => {
 
   const savePaymentSettings = async () => {
     if (!paymentSettings.payment_gateway_api_key?.trim()) {
-      toast({ 
-        title: 'Campo obrigatório', 
-        description: 'A API Key do gateway é obrigatória para salvar as configurações', 
-        variant: 'destructive' 
+      toast({
+        title: 'Campo obrigatório',
+        description: 'A API Key do gateway é obrigatória para salvar as configurações',
+        variant: 'destructive'
       });
       return;
     }
 
     if (paymentSettings.payment_gateway_name === 'other') {
-      toast({ 
-        title: 'Selecione ou digite o nome do gateway', 
-        description: 'Selecione um gateway da lista ou digite o nome personalizado se escolheu "Outro"', 
-        variant: 'destructive' 
+      toast({
+        title: 'Selecione ou digite o nome do gateway',
+        description: 'Selecione um gateway da lista ou digite o nome personalizado se escolheu "Outro"',
+        variant: 'destructive'
       });
       return;
     }
@@ -347,7 +347,7 @@ const Admin = () => {
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
       const webhookUrl = `${supabaseUrl}/functions/v1/webhook-payment`;
-      
+
       const updates = [
         { key: 'payment_gateway_name', value: paymentSettings.payment_gateway_name },
         { key: 'payment_gateway_api_key', value: paymentSettings.payment_gateway_api_key },
@@ -355,27 +355,27 @@ const Admin = () => {
         { key: 'payment_gateway_webhook_secret', value: paymentSettings.payment_gateway_webhook_secret || '' },
         { key: 'payment_webhook_url', value: webhookUrl }
       ];
-      
+
       for (const update of updates) {
         const { error } = await (supabase as any)
           .from('site_settings')
           .upsert({ key: update.key, value: update.value }, { onConflict: 'key' });
-        
+
         if (error) throw error;
       }
-      
+
       // Atualizar URL do webhook
       setPaymentSettings({ ...paymentSettings, payment_webhook_url: webhookUrl });
-      
-      toast({ 
-        title: '✅ Gateway configurado!', 
-        description: `Gateway "${paymentSettings.payment_gateway_name}" salvo com sucesso! Configure o webhook no seu gateway usando a URL abaixo.` 
+
+      toast({
+        title: '✅ Gateway configurado!',
+        description: `Gateway "${paymentSettings.payment_gateway_name}" salvo com sucesso! Configure o webhook no seu gateway usando a URL abaixo.`
       });
     } catch (error: any) {
-      toast({ 
-        title: 'Erro ao salvar', 
-        description: error.message || 'Não foi possível salvar as configurações. Tente novamente.', 
-        variant: 'destructive' 
+      toast({
+        title: 'Erro ao salvar',
+        description: error.message || 'Não foi possível salvar as configurações. Tente novamente.',
+        variant: 'destructive'
       });
     } finally {
       setSavingPayment(false);
@@ -391,7 +391,7 @@ const Admin = () => {
         .select('*')
         .order('created_at', { ascending: false })
         .limit(50);
-      
+
       if (transactionsError) throw transactionsError;
 
       if (!transactionsData || transactionsData.length === 0) {
@@ -401,7 +401,7 @@ const Admin = () => {
 
       // Buscar cursos relacionados
       const courseIds = [...new Set(transactionsData.map((t: any) => t.course_id).filter(Boolean))];
-      const { data: coursesData } = courseIds.length > 0 
+      const { data: coursesData } = courseIds.length > 0
         ? await (supabase as any).from('courses').select('id, title').in('id', courseIds)
         : { data: [] };
 
@@ -415,7 +415,7 @@ const Admin = () => {
       const transactionsWithRelations = transactionsData.map((transaction: any) => {
         const course = coursesData?.find((c: any) => c.id === transaction.course_id) || null;
         const profile = profilesData?.find((p: any) => p.user_id === transaction.user_id) || null;
-        
+
         return {
           ...transaction,
           courses: course,
@@ -426,10 +426,10 @@ const Admin = () => {
       setTransactions(transactionsWithRelations);
     } catch (error: any) {
       console.error('Error fetching transactions:', error);
-      toast({ 
-        title: 'Erro', 
-        description: 'Erro ao carregar transações: ' + error.message, 
-        variant: 'destructive' 
+      toast({
+        title: 'Erro',
+        description: 'Erro ao carregar transações: ' + error.message,
+        variant: 'destructive'
       });
     } finally {
       setLoadingTransactions(false);
@@ -444,7 +444,7 @@ const Admin = () => {
         .from('profiles')
         .select('id, user_id, email, full_name, is_admin, created_at')
         .order('created_at', { ascending: false });
-      
+
       if (usersError) {
         console.error('❌ Error fetching users:', usersError);
         toast({
@@ -455,7 +455,7 @@ const Admin = () => {
         setLoadingUsers(false);
         return;
       }
-      
+
       if (usersData && usersData.length > 0) {
         // Buscar acessos de cada usuário
         const usersWithAccess = await Promise.all(usersData.map(async (profile: any) => {
@@ -464,26 +464,26 @@ const Admin = () => {
             .select('premium_active, expires_at')
             .eq('user_id', profile.user_id)
             .maybeSingle();
-          
+
           return {
             ...profile,
             premium_active: accessData?.premium_active || false,
             expires_at: accessData?.expires_at || null
           };
         }));
-        
+
         console.log('✅ Usuários carregados:', usersWithAccess.length, 'usuários');
         setUsers(usersWithAccess);
       } else {
         console.log('⚠️ Nenhum usuário encontrado na tabela profiles');
         setUsers([]);
       }
-      
+
       // Buscar acessos de todos os usuários
       const { data: accesses, error: accessError } = await (supabase as any)
         .from('user_course_access')
         .select('user_id, course_id');
-      
+
       if (accessError) {
         console.error('Error fetching course access:', accessError);
         // Não bloquear se a tabela não existir ainda
@@ -528,7 +528,7 @@ const Admin = () => {
         new Date(u.created_at).toLocaleDateString('pt-BR')
       ].join(','))
     ].join('\n');
-    
+
     const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
@@ -552,18 +552,18 @@ const Admin = () => {
         // Conceder acesso
         const { error } = await (supabase as any)
           .from('user_course_access')
-          .upsert({ 
-            user_id: userId, 
-            course_id: courseId, 
-            granted_by: user?.id 
-          }, { 
-            onConflict: 'user_id,course_id' 
+          .upsert({
+            user_id: userId,
+            course_id: courseId,
+            granted_by: user?.id
+          }, {
+            onConflict: 'user_id,course_id'
           });
-        
+
         if (error) throw error;
-        
+
         toast({ title: 'Sucesso', description: 'Acesso concedido ao curso' });
-        
+
         // Atualizar state local
         setUserCourseAccessList(prev => ({
           ...prev,
@@ -576,11 +576,11 @@ const Admin = () => {
           .delete()
           .eq('user_id', userId)
           .eq('course_id', courseId);
-        
+
         if (error) throw error;
-        
+
         toast({ title: 'Sucesso', description: 'Acesso removido do curso' });
-        
+
         // Atualizar state local
         setUserCourseAccessList(prev => ({
           ...prev,
@@ -588,10 +588,10 @@ const Admin = () => {
         }));
       }
     } catch (error: any) {
-      toast({ 
-        title: 'Erro', 
-        description: error.message || 'Erro ao atualizar acesso', 
-        variant: 'destructive' 
+      toast({
+        title: 'Erro',
+        description: error.message || 'Erro ao atualizar acesso',
+        variant: 'destructive'
       });
     }
   };
@@ -606,44 +606,44 @@ const Admin = () => {
         await fetchTransactions();
       } catch (error) {
         console.error('Error loading data:', error);
-        toast({ 
-          title: 'Erro', 
-          description: 'Erro ao carregar dados. Verifique sua conexão.', 
-          variant: 'destructive' 
+        toast({
+          title: 'Erro',
+          description: 'Erro ao carregar dados. Verifique sua conexão.',
+          variant: 'destructive'
         });
       } finally {
         setLoading(false);
       }
     };
-    
+
     loadData();
   }, []);
-  
+
   const handleBannerImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       // Validar tipo de arquivo
       if (!file.type.startsWith('image/')) {
-        toast({ 
-          title: 'Erro', 
-          description: 'Por favor, selecione apenas arquivos de imagem', 
-          variant: 'destructive' 
+        toast({
+          title: 'Erro',
+          description: 'Por favor, selecione apenas arquivos de imagem',
+          variant: 'destructive'
         });
         return;
       }
-      
+
       // Validar tamanho (máx 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        toast({ 
-          title: 'Erro', 
-          description: 'A imagem deve ter no máximo 5MB', 
-          variant: 'destructive' 
+        toast({
+          title: 'Erro',
+          description: 'A imagem deve ter no máximo 5MB',
+          variant: 'destructive'
         });
         return;
       }
-      
+
       setBannerImageFile(file);
-      
+
       // Criar preview
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -667,7 +667,7 @@ const Admin = () => {
       const filePath = fileName;
 
       console.log('📤 Fazendo upload de imagem de módulo:', fileName);
-      
+
       // Fazer upload para o bucket 'banners' (podemos usar o mesmo bucket)
       const { error: uploadError, data } = await supabase.storage
         .from('banners')
@@ -675,25 +675,25 @@ const Admin = () => {
           cacheControl: '3600',
           upsert: true
         });
-      
+
       if (uploadError) {
         console.error('Upload error:', uploadError);
         const errorMsg = uploadError.message || String(uploadError);
-        
+
         if (errorMsg.includes('Bucket not found') || errorMsg.includes('not found')) {
           throw new Error(
             '❌ Bucket "banners" não encontrado.\n\n' +
             '🔧 Crie o bucket "banners" no Supabase Dashboard → Storage e marque como Público.'
           );
         }
-        
+
         if (errorMsg.includes('row-level security') || errorMsg.includes('RLS')) {
           throw new Error(
             '❌ Política RLS bloqueou o upload.\n\n' +
             'Execute o SQL CREATE_BANNER_STORAGE_BUCKET.sql no Supabase SQL Editor.'
           );
         }
-        
+
         throw new Error(`Erro no upload: ${errorMsg}`);
       }
 
@@ -750,19 +750,19 @@ const Admin = () => {
       const filePath = fileName;
 
       console.log('🔍 Verificando bucket "banners"...');
-      
+
       // Tentar verificar se o bucket existe
       let bucketExists = false;
       let bucketInfo = null;
-      
+
       try {
         const { data: buckets, error: listError } = await supabase.storage.listBuckets();
-        
+
         if (!listError && buckets) {
           console.log('📦 Buckets encontrados:', buckets.map(b => `${b.name} (${b.public ? 'público' : 'privado'})`).join(', '));
           bucketInfo = buckets.find(b => b.name === 'banners');
           bucketExists = !!bucketInfo;
-          
+
           if (bucketInfo) {
             console.log('✅ Bucket encontrado:', {
               nome: bucketInfo.name,
@@ -787,7 +787,7 @@ const Admin = () => {
       }
 
       console.log('📤 Iniciando upload do arquivo:', fileName);
-      
+
       // Fazer upload
       const { error: uploadError, data } = await supabase.storage
         .from('banners')
@@ -795,24 +795,24 @@ const Admin = () => {
           cacheControl: '3600',
           upsert: true
         });
-      
+
       console.log('📥 Resposta do upload:', { error: uploadError, data });
 
       if (uploadError) {
         console.error('Upload error details:', uploadError);
-        
+
         // Melhorar mensagem de erro com mais detalhes
         const errorMsg = uploadError.message || String(uploadError);
-        
-        if (errorMsg.includes('Bucket not found') || 
-            errorMsg.includes('not found') ||
-            errorMsg.includes('does not exist') ||
-            errorMsg.includes('404')) {
-          
-          const bucketStatusMsg = bucketExists 
+
+        if (errorMsg.includes('Bucket not found') ||
+          errorMsg.includes('not found') ||
+          errorMsg.includes('does not exist') ||
+          errorMsg.includes('404')) {
+
+          const bucketStatusMsg = bucketExists
             ? 'Bucket existe mas pode haver problema de configuração.'
             : 'Bucket não foi encontrado na verificação inicial.';
-          
+
           throw new Error(
             `❌ Bucket "banners" não encontrado ou inacessível.\n\n` +
             `${bucketStatusMsg}\n\n` +
@@ -825,12 +825,12 @@ const Admin = () => {
             `💡 Depois de verificar, recarregue a página (F5) e tente novamente.`
           );
         }
-        
-        if (errorMsg.includes('new row violates row-level security') || 
-            errorMsg.includes('row-level security') ||
-            errorMsg.includes('RLS') ||
-            errorMsg.includes('permission denied') ||
-            errorMsg.includes('insufficient_privilege')) {
+
+        if (errorMsg.includes('new row violates row-level security') ||
+          errorMsg.includes('row-level security') ||
+          errorMsg.includes('RLS') ||
+          errorMsg.includes('permission denied') ||
+          errorMsg.includes('insufficient_privilege')) {
           throw new Error(
             '⚠️ Política RLS bloqueou o upload.\n\n' +
             'Execute o SQL CREATE_BANNER_STORAGE_BUCKET.sql no Supabase SQL Editor.\n\n' +
@@ -840,7 +840,7 @@ const Admin = () => {
             '3. As políticas RLS foram criadas corretamente?'
           );
         }
-        
+
         if (errorMsg.includes('Duplicate') || errorMsg.includes('already exists')) {
           // Tentar fazer upload com nome diferente
           const retryFileName = `banner-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
@@ -850,18 +850,18 @@ const Admin = () => {
               cacheControl: '3600',
               upsert: true
             });
-          
+
           if (retryError) {
             throw new Error(`Erro no upload: ${retryError.message}`);
           }
-          
+
           const { data: retryUrlData } = supabase.storage
             .from('banners')
             .getPublicUrl(retryFileName);
-          
+
           return retryUrlData.publicUrl;
         }
-        
+
         // Erro genérico com mensagem completa
         throw new Error(
           `Erro no upload: ${errorMsg}\n\n` +
@@ -900,10 +900,10 @@ const Admin = () => {
           }
           toast({ title: 'Upload concluído!', description: 'Imagem carregada com sucesso' });
         } catch (uploadError: any) {
-          toast({ 
-            title: 'Erro no upload', 
+          toast({
+            title: 'Erro no upload',
             description: uploadError.message || 'Não foi possível fazer upload da imagem. Tente novamente ou use uma URL.',
-            variant: 'destructive' 
+            variant: 'destructive'
           });
           setUploadingBanner(false);
           setSavingBanner(false);
@@ -918,17 +918,17 @@ const Admin = () => {
         { key: 'banner_text', value: bannerSettings.banner_text },
         { key: 'banner_redirect_url', value: bannerSettings.banner_redirect_url }
       ];
-      
+
       for (const update of updates) {
         const { error } = await supabase
           .from('site_settings')
           .upsert({ key: update.key, value: update.value }, { onConflict: 'key' });
-        
+
         if (error) throw error;
       }
-      
+
       toast({ title: 'Sucesso!', description: 'Configurações do banner salvas' });
-      
+
       // Limpar preview e arquivo após salvar
       setBannerImageFile(null);
       setBannerImagePreview(null);
@@ -939,12 +939,12 @@ const Admin = () => {
       setSavingBanner(false);
     }
   };
-  
+
   const saveCustomSettings = async () => {
     setSavingCustom(true);
     try {
       console.log('💾 Salvando personalizações:', customSettings);
-      
+
       const updates = [
         { key: 'platform_name', value: customSettings.platform_name || '' },
         { key: 'logo_url', value: customSettings.logo_url || '' },
@@ -952,27 +952,27 @@ const Admin = () => {
         { key: 'theme', value: customSettings.theme || 'dark' },
         { key: 'header_title', value: customSettings.header_title || 'Area De Mentorados' }
       ];
-      
+
       console.log('📤 Atualizações a fazer:', updates);
-      
+
       for (const update of updates) {
         console.log(`Atualizando ${update.key} = ${update.value}`);
         const { data, error } = await supabase
           .from('site_settings')
           .upsert({ key: update.key, value: update.value }, { onConflict: 'key' });
-        
+
         if (error) {
           console.error(`Erro ao salvar ${update.key}:`, error);
           throw new Error(`Erro ao salvar ${update.key}: ${error.message}`);
         }
         console.log(`✅ ${update.key} salvo com sucesso`);
       }
-      
-      toast({ 
-        title: 'Sucesso!', 
-        description: 'Personalizações salvas com sucesso. Aplicando mudanças...' 
+
+      toast({
+        title: 'Sucesso!',
+        description: 'Personalizações salvas com sucesso. Aplicando mudanças...'
       });
-      
+
       // Recarregar a página para aplicar todas as mudanças (cor e tema)
       setTimeout(() => {
         window.location.reload();
@@ -980,32 +980,32 @@ const Admin = () => {
     } catch (error: any) {
       console.error('❌ Erro ao salvar personalizações:', error);
       const errorMessage = error.message || 'Erro desconhecido ao salvar personalizações';
-      
+
       // Verificar se é erro de tabela não existente
       if (errorMessage.includes('does not exist') || errorMessage.includes('relation') || errorMessage.includes('table')) {
-        toast({ 
-          title: 'Erro', 
-          description: 'Tabela site_settings não encontrada. Execute o SQL EXECUTAR_MIGRACAO_SETTINGS.sql no Supabase.', 
-          variant: 'destructive' 
+        toast({
+          title: 'Erro',
+          description: 'Tabela site_settings não encontrada. Execute o SQL EXECUTAR_MIGRACAO_SETTINGS.sql no Supabase.',
+          variant: 'destructive'
         });
       } else if (errorMessage.includes('permission') || errorMessage.includes('RLS') || errorMessage.includes('row-level')) {
-        toast({ 
-          title: 'Erro de Permissão', 
-          description: 'Você não tem permissão para salvar. Verifique se você é admin e se as políticas RLS estão configuradas.', 
-          variant: 'destructive' 
+        toast({
+          title: 'Erro de Permissão',
+          description: 'Você não tem permissão para salvar. Verifique se você é admin e se as políticas RLS estão configuradas.',
+          variant: 'destructive'
         });
       } else {
-        toast({ 
-          title: 'Erro', 
-          description: errorMessage, 
-          variant: 'destructive' 
+        toast({
+          title: 'Erro',
+          description: errorMessage,
+          variant: 'destructive'
         });
       }
     } finally {
       setSavingCustom(false);
     }
   };
-  
+
   const saveGeneralSettings = async () => {
     setSavingGeneral(true);
     try {
@@ -1014,15 +1014,15 @@ const Admin = () => {
         { key: 'terms_url', value: generalSettings.terms_url },
         { key: 'privacy_url', value: generalSettings.privacy_url }
       ];
-      
+
       for (const update of updates) {
         const { error } = await supabase
           .from('site_settings')
           .upsert({ key: update.key, value: update.value }, { onConflict: 'key' });
-        
+
         if (error) throw error;
       }
-      
+
       toast({ title: 'Sucesso!', description: 'Configurações gerais salvas' });
     } catch (error: any) {
       toast({ title: 'Erro', description: error.message, variant: 'destructive' });
@@ -1043,17 +1043,17 @@ const Admin = () => {
         { key: 'accelerator_title', value: layoutSettings.accelerator_title },
         { key: 'modules_grid_columns', value: layoutSettings.modules_grid_columns }
       ];
-      
+
       for (const update of updates) {
         const { error } = await supabase
           .from('site_settings')
           .upsert({ key: update.key, value: update.value }, { onConflict: 'key' });
-        
+
         if (error) throw error;
       }
-      
+
       toast({ title: 'Sucesso!', description: 'Configurações de layout salvas. Recarregue a página para ver as mudanças.' });
-      
+
       setTimeout(() => {
         window.location.reload();
       }, 1500);
@@ -1069,18 +1069,18 @@ const Admin = () => {
       toast({ title: 'Erro', description: 'O título do curso é obrigatório', variant: 'destructive' });
       return;
     }
-    const { error } = await supabase.from('courses').insert({ 
-      title: newCourse.title.trim(), 
+    const { error } = await supabase.from('courses').insert({
+      title: newCourse.title.trim(),
       description: newCourse.description.trim() || null,
       image_url: newCourse.image_url.trim() || null,
       is_locked: newCourse.is_locked || false,
       offer_video_url: newCourse.offer_video_url?.trim() || null,
       purchase_url: newCourse.purchase_url?.trim() || null,
-      order: courses.length + 1 
+      order: courses.length + 1
     });
-    if (error) { 
-      toast({ title: 'Erro', description: error.message, variant: 'destructive' }); 
-      return; 
+    if (error) {
+      toast({ title: 'Erro', description: error.message, variant: 'destructive' });
+      return;
     }
     toast({ title: 'Sucesso!', description: 'Curso criado com sucesso' });
     setNewCourse({ title: '', description: '', image_url: '', is_locked: false, offer_video_url: '', purchase_url: '' });
@@ -1089,9 +1089,9 @@ const Admin = () => {
 
   const startEditCourse = (course: Course) => {
     setEditingCourse(course.id);
-    setEditCourseData({ 
-      title: course.title, 
-      description: course.description || '', 
+    setEditCourseData({
+      title: course.title,
+      description: course.description || '',
       image_url: course.image_url || '',
       is_locked: course.is_locked || false,
       offer_video_url: course.offer_video_url || '',
@@ -1111,8 +1111,8 @@ const Admin = () => {
     }
     const { error } = await supabase
       .from('courses')
-      .update({ 
-        title: editCourseData.title.trim(), 
+      .update({
+        title: editCourseData.title.trim(),
         description: editCourseData.description.trim() || null,
         image_url: editCourseData.image_url.trim() || null,
         is_locked: editCourseData.is_locked || false,
@@ -1120,9 +1120,9 @@ const Admin = () => {
         purchase_url: editCourseData.purchase_url?.trim() || null
       })
       .eq('id', id);
-    if (error) { 
-      toast({ title: 'Erro', description: error.message, variant: 'destructive' }); 
-      return; 
+    if (error) {
+      toast({ title: 'Erro', description: error.message, variant: 'destructive' });
+      return;
     }
     toast({ title: 'Sucesso!', description: 'Curso atualizado' });
     setEditingCourse(null);
@@ -1132,9 +1132,9 @@ const Admin = () => {
 
   const deleteCourse = async (id: string) => {
     const { error } = await supabase.from('courses').delete().eq('id', id);
-    if (error) { 
-      toast({ title: 'Erro', description: error.message, variant: 'destructive' }); 
-      return; 
+    if (error) {
+      toast({ title: 'Erro', description: error.message, variant: 'destructive' });
+      return;
     }
     toast({ title: 'Sucesso!', description: 'Curso excluído' });
     if (selectedCourse === id) {
@@ -1166,10 +1166,10 @@ const Admin = () => {
         }
         toast({ title: 'Upload concluído!', description: 'Imagem carregada com sucesso' });
       } catch (uploadError: any) {
-        toast({ 
-          title: 'Erro no upload', 
+        toast({
+          title: 'Erro no upload',
           description: uploadError.message || 'Não foi possível fazer upload da imagem. Tente novamente ou use uma URL.',
-          variant: 'destructive' 
+          variant: 'destructive'
         });
         setUploadingModuleImage(false);
         return;
@@ -1179,16 +1179,16 @@ const Admin = () => {
     }
 
     const courseModules = modules.filter(m => m.course_id === newModule.course_id);
-    const { error } = await supabase.from('courses_modules').insert({ 
-      title: newModule.title.trim(), 
+    const { error } = await supabase.from('courses_modules').insert({
+      title: newModule.title.trim(),
       description: newModule.description.trim() || null,
       course_id: newModule.course_id,
       image_url: imageUrl || null,
-      order: courseModules.length + 1 
+      order: courseModules.length + 1
     });
-    if (error) { 
-      toast({ title: 'Erro', description: error.message, variant: 'destructive' }); 
-      return; 
+    if (error) {
+      toast({ title: 'Erro', description: error.message, variant: 'destructive' });
+      return;
     }
     toast({ title: 'Sucesso!', description: 'Módulo criado com sucesso' });
     setNewModule({ title: '', description: '', course_id: '', image_url: '' });
@@ -1199,9 +1199,9 @@ const Admin = () => {
 
   const startEditModule = (module: Module) => {
     setEditingModule(module.id);
-    setEditModuleData({ 
-      title: module.title, 
-      description: module.description || '', 
+    setEditModuleData({
+      title: module.title,
+      description: module.description || '',
       course_id: module.course_id || '',
       image_url: module.image_url || ''
     });
@@ -1233,10 +1233,10 @@ const Admin = () => {
           throw new Error('Falha ao fazer upload da imagem');
         }
       } catch (uploadError: any) {
-        toast({ 
-          title: 'Erro no upload', 
+        toast({
+          title: 'Erro no upload',
           description: uploadError.message || 'Não foi possível fazer upload da imagem',
-          variant: 'destructive' 
+          variant: 'destructive'
         });
         setUploadingModuleImage(false);
         return;
@@ -1247,16 +1247,16 @@ const Admin = () => {
 
     const { error } = await supabase
       .from('courses_modules')
-      .update({ 
-        title: editModuleData.title.trim(), 
+      .update({
+        title: editModuleData.title.trim(),
         description: editModuleData.description.trim() || null,
         course_id: editModuleData.course_id || null,
         image_url: imageUrl || null
       })
       .eq('id', id);
-    if (error) { 
-      toast({ title: 'Erro', description: error.message, variant: 'destructive' }); 
-      return; 
+    if (error) {
+      toast({ title: 'Erro', description: error.message, variant: 'destructive' });
+      return;
     }
     toast({ title: 'Sucesso!', description: 'Módulo atualizado' });
     setEditingModule(null);
@@ -1268,9 +1268,9 @@ const Admin = () => {
 
   const deleteModule = async (id: string) => {
     const { error } = await supabase.from('courses_modules').delete().eq('id', id);
-    if (error) { 
-      toast({ title: 'Erro', description: error.message, variant: 'destructive' }); 
-      return; 
+    if (error) {
+      toast({ title: 'Erro', description: error.message, variant: 'destructive' });
+      return;
     }
     toast({ title: 'Sucesso!', description: 'Módulo excluído' });
     if (selectedModule === id) {
@@ -1283,9 +1283,9 @@ const Admin = () => {
   const addLesson = async () => {
     if (!newLesson.title || !selectedModule) return;
     const moduleLessons = lessons.filter(l => l.module_id === selectedModule);
-    const { error } = await supabase.from('courses_lessons').insert({ 
-      module_id: selectedModule, title: newLesson.title, description_html: newLesson.description_html, 
-      video_vturb_url: newLesson.video_vturb_url, is_premium: newLesson.is_premium, order: moduleLessons.length + 1 
+    const { error } = await supabase.from('courses_lessons').insert({
+      module_id: selectedModule, title: newLesson.title, description_html: newLesson.description_html,
+      video_vturb_url: newLesson.video_vturb_url, is_premium: newLesson.is_premium, order: moduleLessons.length + 1
     });
     if (error) { toast({ title: 'Erro', description: error.message, variant: 'destructive' }); return; }
     toast({ title: 'Aula criada!' });
@@ -1316,8 +1316,8 @@ const Admin = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
               onClick={() => {
                 setActiveTab('courses');
@@ -1331,8 +1331,8 @@ const Admin = () => {
               <span className="hidden sm:inline">Adicionar Curso</span>
               <span className="sm:hidden">Curso</span>
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
               onClick={() => {
                 if (!courses.length) {
@@ -1355,8 +1355,8 @@ const Admin = () => {
               <span className="hidden sm:inline">Adicionar Módulo</span>
               <span className="sm:hidden">Módulo</span>
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
               onClick={() => {
                 if (!selectedModule) {
@@ -1470,6 +1470,10 @@ const Admin = () => {
                         value={newCourse.image_url}
                         onChange={e => setNewCourse(p => ({ ...p, image_url: e.target.value }))}
                       />
+                      <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                        <span className="inline-block w-2 h-2 bg-primary/60 rounded-full"></span>
+                        <strong>Tamanho recomendado:</strong> 800 x 450 pixels (proporção 16:9)
+                      </p>
                     </div>
                     <div className="space-y-2 p-3 border border-border rounded-lg bg-muted/30">
                       <Label className="text-sm font-medium">Oferta de Vendas (apenas para cursos bloqueados)</Label>
@@ -1517,18 +1521,17 @@ const Admin = () => {
                     <div className="space-y-2">
                       {courses.map(course => {
                         const courseModules = modules.filter(m => m.course_id === course.id);
-                        const courseLessons = lessons.filter(l => 
+                        const courseLessons = lessons.filter(l =>
                           courseModules.some(m => m.id === l.module_id)
                         );
-                        
+
                         return (
                           <div
                             key={course.id}
-                            className={`p-4 rounded-lg border cursor-pointer transition-all ${
-                              selectedCourse === course.id
-                                ? 'bg-primary/10 border-primary shadow-sm'
-                                : 'hover:bg-secondary/50 border-border'
-                            }`}
+                            className={`p-4 rounded-lg border cursor-pointer transition-all ${selectedCourse === course.id
+                              ? 'bg-primary/10 border-primary shadow-sm'
+                              : 'hover:bg-secondary/50 border-border'
+                              }`}
                             onClick={() => editingCourse !== course.id && setSelectedCourse(course.id)}
                           >
                             {editingCourse === course.id ? (
@@ -1547,11 +1550,12 @@ const Admin = () => {
                                   rows={2}
                                 />
                                 <Input
-                                  placeholder="URL da Imagem"
+                                  placeholder="URL da Imagem (800x450px recomendado)"
                                   value={editCourseData.image_url}
                                   onChange={e => setEditCourseData({ ...editCourseData, image_url: e.target.value })}
                                   onClick={e => e.stopPropagation()}
                                 />
+                                <p className="text-xs text-muted-foreground">📐 Tamanho: 800 x 450 pixels</p>
                                 <div className="flex items-center justify-between p-3 border border-border rounded-lg">
                                   <Label className="text-sm font-medium">Curso Bloqueado</Label>
                                   <Switch
@@ -1641,15 +1645,15 @@ const Admin = () => {
                                           .update({ is_locked: checked })
                                           .eq('id', course.id);
                                         if (error) {
-                                          toast({ 
-                                            title: 'Erro', 
-                                            description: error.message, 
-                                            variant: 'destructive' 
+                                          toast({
+                                            title: 'Erro',
+                                            description: error.message,
+                                            variant: 'destructive'
                                           });
                                         } else {
-                                          toast({ 
-                                            title: 'Sucesso', 
-                                            description: checked ? 'Curso bloqueado' : 'Curso desbloqueado' 
+                                          toast({
+                                            title: 'Sucesso',
+                                            description: checked ? 'Curso bloqueado' : 'Curso desbloqueado'
                                           });
                                           fetchData();
                                         }
@@ -1694,67 +1698,67 @@ const Admin = () => {
                   Gerenciar Módulos
                 </CardTitle>
               </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Add Module Form */}
-            <div className="p-4 rounded-lg border-2 border-dashed border-border bg-muted/30 space-y-3">
-              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                <Plus className="w-4 h-4" />
-                Novo Módulo
-              </div>
-              <div className="space-y-3">
-                <div>
-                  <Label htmlFor="module-course" className="text-sm font-medium mb-1.5 block">
-                    Curso <span className="text-destructive">*</span>
-                  </Label>
-                  {courses.length === 0 ? (
-                    <div className="p-3 border border-dashed border-border rounded-lg bg-muted/30">
-                      <p className="text-sm text-muted-foreground text-center">
-                        Crie um curso primeiro na aba "Cursos"
-                      </p>
+              <CardContent className="space-y-6">
+                {/* Add Module Form */}
+                <div className="p-4 rounded-lg border-2 border-dashed border-border bg-muted/30 space-y-3">
+                  <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                    <Plus className="w-4 h-4" />
+                    Novo Módulo
+                  </div>
+                  <div className="space-y-3">
+                    <div>
+                      <Label htmlFor="module-course" className="text-sm font-medium mb-1.5 block">
+                        Curso <span className="text-destructive">*</span>
+                      </Label>
+                      {courses.length === 0 ? (
+                        <div className="p-3 border border-dashed border-border rounded-lg bg-muted/30">
+                          <p className="text-sm text-muted-foreground text-center">
+                            Crie um curso primeiro na aba "Cursos"
+                          </p>
+                        </div>
+                      ) : (
+                        <Select
+                          value={newModule.course_id}
+                          onValueChange={value => setNewModule(p => ({ ...p, course_id: value }))}
+                        >
+                          <SelectTrigger id="module-course">
+                            <SelectValue placeholder="Selecione um curso" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {courses.map(course => (
+                              <SelectItem key={course.id} value={course.id}>
+                                {course.title}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
                     </div>
-                  ) : (
-                    <Select
-                      value={newModule.course_id}
-                      onValueChange={value => setNewModule(p => ({ ...p, course_id: value }))}
-                    >
-                      <SelectTrigger id="module-course">
-                        <SelectValue placeholder="Selecione um curso" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {courses.map(course => (
-                          <SelectItem key={course.id} value={course.id}>
-                            {course.title}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                </div>
-                <div>
-                  <Label htmlFor="module-title" className="text-sm font-medium mb-1.5 block">
-                    Título do Módulo <span className="text-destructive">*</span>
-                  </Label>
-                  <Input 
-                    id="module-title"
-                    placeholder="Ex: Introdução ao Marketing Digital" 
-                    value={newModule.title} 
-                    onChange={e => setNewModule(p => ({ ...p, title: e.target.value }))}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        addModule();
-                      }
-                    }}
-                  />
-            </div>
+                    <div>
+                      <Label htmlFor="module-title" className="text-sm font-medium mb-1.5 block">
+                        Título do Módulo <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="module-title"
+                        placeholder="Ex: Introdução ao Marketing Digital"
+                        value={newModule.title}
+                        onChange={e => setNewModule(p => ({ ...p, title: e.target.value }))}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            addModule();
+                          }
+                        }}
+                      />
+                    </div>
                     <div>
                       <Label htmlFor="module-description" className="text-sm font-medium mb-1.5 block">
                         Descrição
                       </Label>
-                      <Textarea 
+                      <Textarea
                         id="module-description"
-                        placeholder="Descreva o que os alunos vão aprender neste módulo..." 
-                        value={newModule.description} 
+                        placeholder="Descreva o que os alunos vão aprender neste módulo..."
+                        value={newModule.description}
                         onChange={e => setNewModule(p => ({ ...p, description: e.target.value }))}
                         rows={3}
                       />
@@ -1763,6 +1767,10 @@ const Admin = () => {
                       <Label className="text-sm font-medium mb-1.5 block">
                         Capa do Módulo (Opcional)
                       </Label>
+                      <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
+                        <span className="inline-block w-2 h-2 bg-primary/60 rounded-full"></span>
+                        <strong>Tamanho recomendado:</strong> 600 x 400 pixels (proporção 3:2)
+                      </p>
                       <div className="space-y-3">
                         <div className="flex items-center gap-4">
                           <label className="cursor-pointer">
@@ -1781,7 +1789,7 @@ const Admin = () => {
                               </span>
                             </div>
                           </label>
-                          
+
                           {(moduleImageFile || moduleImagePreview || newModule.image_url) && (
                             <Button
                               type="button"
@@ -1819,8 +1827,8 @@ const Admin = () => {
                           </div>
                         )}
 
-                        <Input 
-                          placeholder="Ou cole a URL da imagem" 
+                        <Input
+                          placeholder="Ou cole a URL da imagem"
                           value={newModule.image_url}
                           onChange={e => setNewModule(p => ({ ...p, image_url: e.target.value }))}
                           disabled={!!moduleImageFile || uploadingModuleImage}
@@ -1829,10 +1837,13 @@ const Admin = () => {
                         <p className="text-xs text-muted-foreground">
                           Envie uma imagem (máx 5MB) ou cole uma URL. Esta será a capa do módulo.
                         </p>
+                        <div className="mt-2 p-2 bg-primary/5 border border-primary/20 rounded-md">
+                          <p className="text-xs text-primary font-medium">📐 Dimensões ideais: 600 x 400 pixels</p>
+                        </div>
                       </div>
                     </div>
-                    <Button 
-                      onClick={addModule} 
+                    <Button
+                      onClick={addModule}
                       className="w-full gap-2"
                       disabled={!newModule.title.trim() || !newModule.course_id || uploadingModuleImage}
                     >
@@ -1848,205 +1859,205 @@ const Admin = () => {
                         </>
                       )}
                     </Button>
-              </div>
-            </div>
-            
-            {/* Modules List */}
-            <div>
-              <div className="text-sm font-medium text-muted-foreground mb-3">
-                Módulos existentes ({modules.length})
-              </div>
-              {modules.length === 0 ? (
-                <div className="text-center py-12 text-muted-foreground text-sm border border-dashed border-border rounded-lg">
-                  <BookOpen className="w-10 h-10 mx-auto mb-3 opacity-50" />
-                  <p className="font-medium mb-1">Nenhum módulo criado ainda</p>
-                  <p className="text-xs">Adicione seu primeiro módulo usando o formulário acima</p>
+                  </div>
                 </div>
-              ) : (
-                <div className="space-y-2">
-                {modules.map(m => {
-                  const course = courses.find(c => c.id === m.course_id);
-                  return (
-                  <div 
-                    key={m.id} 
-                    className={`p-4 rounded-lg border cursor-pointer transition-all ${
-                      selectedModule === m.id 
-                        ? 'bg-primary/10 border-primary shadow-sm' 
-                        : 'hover:bg-secondary/50 border-border'
-                    }`}
-                    onClick={() => editingModule !== m.id && setSelectedModule(m.id)}
-                  >
-                    {editingModule === m.id ? (
-                      <div className="space-y-3">
-                        <div>
-                          <Label className="text-xs text-muted-foreground mb-1 block">Curso</Label>
-                          <Select
-                            value={editModuleData.course_id}
-                            onValueChange={value => setEditModuleData({ ...editModuleData, course_id: value })}
+
+                {/* Modules List */}
+                <div>
+                  <div className="text-sm font-medium text-muted-foreground mb-3">
+                    Módulos existentes ({modules.length})
+                  </div>
+                  {modules.length === 0 ? (
+                    <div className="text-center py-12 text-muted-foreground text-sm border border-dashed border-border rounded-lg">
+                      <BookOpen className="w-10 h-10 mx-auto mb-3 opacity-50" />
+                      <p className="font-medium mb-1">Nenhum módulo criado ainda</p>
+                      <p className="text-xs">Adicione seu primeiro módulo usando o formulário acima</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {modules.map(m => {
+                        const course = courses.find(c => c.id === m.course_id);
+                        return (
+                          <div
+                            key={m.id}
+                            className={`p-4 rounded-lg border cursor-pointer transition-all ${selectedModule === m.id
+                              ? 'bg-primary/10 border-primary shadow-sm'
+                              : 'hover:bg-secondary/50 border-border'
+                              }`}
+                            onClick={() => editingModule !== m.id && setSelectedModule(m.id)}
                           >
-                            <SelectTrigger onClick={e => e.stopPropagation()}>
-                              <SelectValue placeholder="Selecione um curso" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {courses.map(c => (
-                                <SelectItem key={c.id} value={c.id}>
-                                  {c.title}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <Input
-                          placeholder="Título do módulo"
-                          value={editModuleData.title}
-                          onChange={e => setEditModuleData({ ...editModuleData, title: e.target.value })}
-                          onClick={e => e.stopPropagation()}
-                        />
-                        <Textarea
-                          placeholder="Descrição"
-                          value={editModuleData.description}
-                          onChange={e => setEditModuleData({ ...editModuleData, description: e.target.value })}
-                          onClick={e => e.stopPropagation()}
-                          rows={2}
-                        />
-                        <div>
-                          <Label className="text-xs text-muted-foreground mb-1 block">Capa do Módulo</Label>
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2">
-                              <label className="cursor-pointer">
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={(e) => handleModuleImageChange(e, true)}
-                                  className="hidden"
-                                  onClick={e => e.stopPropagation()}
-                                  disabled={uploadingModuleImage}
-                                />
-                                <div className="flex items-center gap-1 px-3 py-1.5 border border-border rounded text-xs hover:bg-secondary/50 transition-colors">
-                                  <Upload className="w-3 h-3" />
-                                  {editingModuleImageFile ? 'Trocar' : 'Upload'}
+                            {editingModule === m.id ? (
+                              <div className="space-y-3">
+                                <div>
+                                  <Label className="text-xs text-muted-foreground mb-1 block">Curso</Label>
+                                  <Select
+                                    value={editModuleData.course_id}
+                                    onValueChange={value => setEditModuleData({ ...editModuleData, course_id: value })}
+                                  >
+                                    <SelectTrigger onClick={e => e.stopPropagation()}>
+                                      <SelectValue placeholder="Selecione um curso" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {courses.map(c => (
+                                        <SelectItem key={c.id} value={c.id}>
+                                          {c.title}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
                                 </div>
-                              </label>
-                              {(editingModuleImageFile || editingModuleImagePreview || editModuleData.image_url) && (
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={(e) => { e.stopPropagation(); removeModuleImage(true); }}
-                                  disabled={uploadingModuleImage}
-                                  className="h-7 text-xs"
-                                >
-                                  <XCircle className="w-3 h-3 mr-1" />
-                                  Remover
-                                </Button>
-                              )}
-                            </div>
-                            {(editingModuleImagePreview || editModuleData.image_url) && (
-                              <div className="relative w-full h-24 rounded overflow-hidden border border-border">
-                                <img
-                                  src={editingModuleImagePreview || editModuleData.image_url || ''}
-                                  alt="Preview"
-                                  className="w-full h-full object-cover"
+                                <Input
+                                  placeholder="Título do módulo"
+                                  value={editModuleData.title}
+                                  onChange={e => setEditModuleData({ ...editModuleData, title: e.target.value })}
                                   onClick={e => e.stopPropagation()}
                                 />
+                                <Textarea
+                                  placeholder="Descrição"
+                                  value={editModuleData.description}
+                                  onChange={e => setEditModuleData({ ...editModuleData, description: e.target.value })}
+                                  onClick={e => e.stopPropagation()}
+                                  rows={2}
+                                />
+                                <div>
+                                  <Label className="text-xs text-muted-foreground mb-1 block">Capa do Módulo</Label>
+                                  <div className="space-y-2">
+                                    <div className="flex items-center gap-2">
+                                      <label className="cursor-pointer">
+                                        <input
+                                          type="file"
+                                          accept="image/*"
+                                          onChange={(e) => handleModuleImageChange(e, true)}
+                                          className="hidden"
+                                          onClick={e => e.stopPropagation()}
+                                          disabled={uploadingModuleImage}
+                                        />
+                                        <div className="flex items-center gap-1 px-3 py-1.5 border border-border rounded text-xs hover:bg-secondary/50 transition-colors">
+                                          <Upload className="w-3 h-3" />
+                                          {editingModuleImageFile ? 'Trocar' : 'Upload'}
+                                        </div>
+                                      </label>
+                                      {(editingModuleImageFile || editingModuleImagePreview || editModuleData.image_url) && (
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={(e) => { e.stopPropagation(); removeModuleImage(true); }}
+                                          disabled={uploadingModuleImage}
+                                          className="h-7 text-xs"
+                                        >
+                                          <XCircle className="w-3 h-3 mr-1" />
+                                          Remover
+                                        </Button>
+                                      )}
+                                    </div>
+                                    {(editingModuleImagePreview || editModuleData.image_url) && (
+                                      <div className="relative w-full h-24 rounded overflow-hidden border border-border">
+                                        <img
+                                          src={editingModuleImagePreview || editModuleData.image_url || ''}
+                                          alt="Preview"
+                                          className="w-full h-full object-cover"
+                                          onClick={e => e.stopPropagation()}
+                                        />
+                                      </div>
+                                    )}
+                                    <Input
+                                      placeholder="Ou cole URL da imagem (600x400px)"
+                                      value={editModuleData.image_url}
+                                      onChange={e => setEditModuleData({ ...editModuleData, image_url: e.target.value })}
+                                      onClick={e => e.stopPropagation()}
+                                      disabled={!!editingModuleImageFile || uploadingModuleImage}
+                                      className="h-8 text-xs"
+                                    />
+                                    <p className="text-xs text-muted-foreground">📐 Tamanho: 600 x 400 pixels</p>
+                                  </div>
+                                </div>
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="sm"
+                                    onClick={e => { e.stopPropagation(); saveEditModule(m.id); }}
+                                    className="flex-1"
+                                    disabled={uploadingModuleImage}
+                                  >
+                                    {uploadingModuleImage ? (
+                                      <Loader2 className="w-4 h-4 animate-spin mr-1" />
+                                    ) : (
+                                      <Check className="w-4 h-4 mr-1" />
+                                    )}
+                                    {uploadingModuleImage ? 'Salvando...' : 'Salvar'}
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={e => { e.stopPropagation(); cancelEditModule(); }}
+                                    className="flex-1"
+                                    disabled={uploadingModuleImage}
+                                  >
+                                    <X className="w-4 h-4 mr-1" />
+                                    Cancelar
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="flex justify-between items-start gap-2">
+                                <div className="flex-1 min-w-0 flex gap-3">
+                                  {m.image_url && (
+                                    <div className="flex-shrink-0">
+                                      <img
+                                        src={m.image_url}
+                                        alt={m.title}
+                                        className="w-16 h-16 rounded object-cover border border-border"
+                                        onError={(e) => {
+                                          (e.target as HTMLImageElement).style.display = 'none';
+                                        }}
+                                      />
+                                    </div>
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <div className="font-semibold text-base">{m.title}</div>
+                                      {course && (
+                                        <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded">
+                                          {course.title}
+                                        </span>
+                                      )}
+                                    </div>
+                                    {m.description && (
+                                      <p className="text-sm text-muted-foreground line-clamp-2">{m.description}</p>
+                                    )}
+                                    <div className="flex items-center gap-2 mt-2">
+                                      <span className="text-xs text-muted-foreground">
+                                        {lessons.filter(l => l.module_id === m.id).length} aula(s)
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="flex gap-1" onClick={e => e.stopPropagation()}>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => startEditModule(m)}
+                                    className="h-8 w-8"
+                                  >
+                                    <Edit2 className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => setDeleteModuleId(m.id)}
+                                    className="h-8 w-8 text-destructive hover:text-destructive"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
                               </div>
                             )}
-                            <Input
-                              placeholder="Ou cole URL da imagem"
-                              value={editModuleData.image_url}
-                              onChange={e => setEditModuleData({ ...editModuleData, image_url: e.target.value })}
-                              onClick={e => e.stopPropagation()}
-                              disabled={!!editingModuleImageFile || uploadingModuleImage}
-                              className="h-8 text-xs"
-                            />
                           </div>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button 
-                            size="sm" 
-                            onClick={e => { e.stopPropagation(); saveEditModule(m.id); }}
-                            className="flex-1"
-                            disabled={uploadingModuleImage}
-                          >
-                            {uploadingModuleImage ? (
-                              <Loader2 className="w-4 h-4 animate-spin mr-1" />
-                            ) : (
-                              <Check className="w-4 h-4 mr-1" />
-                            )}
-                            {uploadingModuleImage ? 'Salvando...' : 'Salvar'}
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={e => { e.stopPropagation(); cancelEditModule(); }}
-                            className="flex-1"
-                            disabled={uploadingModuleImage}
-                          >
-                            <X className="w-4 h-4 mr-1" />
-                            Cancelar
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex justify-between items-start gap-2">
-                        <div className="flex-1 min-w-0 flex gap-3">
-                          {m.image_url && (
-                            <div className="flex-shrink-0">
-                              <img
-                                src={m.image_url}
-                                alt={m.title}
-                                className="w-16 h-16 rounded object-cover border border-border"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).style.display = 'none';
-                                }}
-                              />
-                            </div>
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <div className="font-semibold text-base">{m.title}</div>
-                              {course && (
-                                <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded">
-                                  {course.title}
-                                </span>
-                              )}
-                            </div>
-                            {m.description && (
-                              <p className="text-sm text-muted-foreground line-clamp-2">{m.description}</p>
-                            )}
-                            <div className="flex items-center gap-2 mt-2">
-                              <span className="text-xs text-muted-foreground">
-                                {lessons.filter(l => l.module_id === m.id).length} aula(s)
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                          <Button 
-                            variant="ghost" 
-                            size="icon"
-                            onClick={() => startEditModule(m)}
-                            className="h-8 w-8"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="icon"
-                            onClick={() => setDeleteModuleId(m.id)}
-                            className="h-8 w-8 text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  );
-                })}
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -2085,19 +2096,19 @@ const Admin = () => {
                       </div>
                       <div>
                         <Label htmlFor="lesson-title">Título da Aula <span className="text-destructive">*</span></Label>
-                        <Input 
+                        <Input
                           id="lesson-title"
-                          placeholder="Ex: Introdução ao Marketing Digital" 
-                          value={newLesson.title} 
-                          onChange={e => setNewLesson(p => ({ ...p, title: e.target.value }))} 
+                          placeholder="Ex: Introdução ao Marketing Digital"
+                          value={newLesson.title}
+                          onChange={e => setNewLesson(p => ({ ...p, title: e.target.value }))}
                         />
                       </div>
                       <div>
                         <Label htmlFor="lesson-video">Código Embed do Vídeo</Label>
-                        <Textarea 
+                        <Textarea
                           id="lesson-video"
-                          placeholder='Cole aqui o código embed completo do iframe, por exemplo: &lt;iframe src="https://..."&gt;&lt;/iframe&gt;' 
-                          value={newLesson.video_vturb_url} 
+                          placeholder='Cole aqui o código embed completo do iframe, por exemplo: &lt;iframe src="https://..."&gt;&lt;/iframe&gt;'
+                          value={newLesson.video_vturb_url}
                           onChange={e => setNewLesson(p => ({ ...p, video_vturb_url: e.target.value }))}
                           rows={4}
                           className="font-mono text-sm"
@@ -2108,23 +2119,23 @@ const Admin = () => {
                       </div>
                       <div>
                         <Label htmlFor="lesson-description">Descrição HTML</Label>
-                        <Textarea 
+                        <Textarea
                           id="lesson-description"
-                          placeholder="Descrição da aula (suporta HTML e links)" 
-                          value={newLesson.description_html} 
-                          onChange={e => setNewLesson(p => ({ ...p, description_html: e.target.value }))} 
-                          rows={4} 
+                          placeholder="Descrição da aula (suporta HTML e links)"
+                          value={newLesson.description_html}
+                          onChange={e => setNewLesson(p => ({ ...p, description_html: e.target.value }))}
+                          rows={4}
                         />
                       </div>
                       <div className="flex items-center gap-2">
-                        <Switch 
-                          checked={newLesson.is_premium} 
-                          onCheckedChange={c => setNewLesson(p => ({ ...p, is_premium: c }))} 
+                        <Switch
+                          checked={newLesson.is_premium}
+                          onCheckedChange={c => setNewLesson(p => ({ ...p, is_premium: c }))}
                         />
                         <Label>Conteúdo Premium</Label>
                       </div>
-                      <Button 
-                        onClick={addLesson} 
+                      <Button
+                        onClick={addLesson}
                         className="w-full gap-2"
                         disabled={!newLesson.title.trim()}
                       >
@@ -2174,7 +2185,7 @@ const Admin = () => {
                 <div className="space-y-3">
                   <div>
                     <Label>Imagem do Banner</Label>
-                    
+
                     {/* Upload de Arquivo */}
                     <div className="mt-2 space-y-3">
                       <div className="flex items-center gap-4">
@@ -2194,7 +2205,7 @@ const Admin = () => {
                             </span>
                           </div>
                         </label>
-                        
+
                         {(bannerImageFile || bannerImagePreview || bannerSettings.banner_image_url) && (
                           <Button
                             type="button"
@@ -2244,23 +2255,31 @@ const Admin = () => {
                           <span className="bg-background px-2 text-muted-foreground">ou</span>
                         </div>
                       </div>
-                      
-                      <Input 
-                        placeholder="Ou cole a URL da imagem" 
+
+                      <Input
+                        placeholder="Ou cole a URL da imagem"
                         value={bannerSettings.banner_image_url}
                         onChange={e => setBannerSettings({ ...bannerSettings, banner_image_url: e.target.value })}
                         disabled={!!bannerImageFile || uploadingBanner || savingBanner}
                       />
                     </div>
-                    
+
                     <p className="text-xs text-muted-foreground mt-1">
                       Envie uma imagem (máx 5MB) ou cole uma URL. Formatos: JPG, PNG, GIF, WebP
                     </p>
+                    <div className="mt-2 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                      <p className="text-sm text-primary font-medium flex items-center gap-2">
+                        📐 Tamanho recomendado do Banner: <strong>1024 x 426 pixels</strong>
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Use imagens em alta resolução para melhor qualidade. Proporção aproximada 2.4:1
+                      </p>
+                    </div>
                   </div>
                   <div>
                     <Label>Texto do Banner (Opcional)</Label>
-                    <Input 
-                      placeholder="método sociedade" 
+                    <Input
+                      placeholder="método sociedade"
                       value={bannerSettings.banner_text}
                       onChange={e => setBannerSettings({ ...bannerSettings, banner_text: e.target.value })}
                       className="mt-1"
@@ -2268,8 +2287,8 @@ const Admin = () => {
                   </div>
                   <div>
                     <Label>URL de Redirecionamento (Opcional)</Label>
-                    <Input 
-                      placeholder="https://..." 
+                    <Input
+                      placeholder="https://..."
                       value={bannerSettings.banner_redirect_url}
                       onChange={e => setBannerSettings({ ...bannerSettings, banner_redirect_url: e.target.value })}
                       className="mt-1"
@@ -2278,7 +2297,7 @@ const Admin = () => {
                       Para onde o usuário será redirecionado ao clicar no banner
                     </p>
                   </div>
-                  <Button 
+                  <Button
                     onClick={saveBannerSettings}
                     disabled={savingBanner || uploadingBanner || (!bannerImageFile && !bannerSettings.banner_image_url)}
                     className="w-full gap-2"
@@ -2318,8 +2337,8 @@ const Admin = () => {
                 <div className="space-y-4">
                   <div>
                     <Label>Nome da Plataforma</Label>
-                    <Input 
-                      placeholder="método sociedade" 
+                    <Input
+                      placeholder="método sociedade"
                       value={customSettings.platform_name}
                       onChange={e => setCustomSettings({ ...customSettings, platform_name: e.target.value })}
                       className="mt-1"
@@ -2327,8 +2346,8 @@ const Admin = () => {
                   </div>
                   <div>
                     <Label>Título do Header</Label>
-                    <Input 
-                      placeholder="Area De Mentorados" 
+                    <Input
+                      placeholder="Area De Mentorados"
                       value={customSettings.header_title}
                       onChange={e => setCustomSettings({ ...customSettings, header_title: e.target.value })}
                       className="mt-1"
@@ -2339,8 +2358,8 @@ const Admin = () => {
                   </div>
                   <div>
                     <Label>Logo URL (Opcional)</Label>
-                    <Input 
-                      placeholder="https://exemplo.com/logo.png" 
+                    <Input
+                      placeholder="https://exemplo.com/logo.png"
                       value={customSettings.logo_url}
                       onChange={e => setCustomSettings({ ...customSettings, logo_url: e.target.value })}
                       className="mt-1"
@@ -2348,8 +2367,8 @@ const Admin = () => {
                   </div>
                   <div>
                     <Label>Cor Primária</Label>
-                    <Input 
-                      type="color" 
+                    <Input
+                      type="color"
                       value={customSettings.primary_color}
                       onChange={e => setCustomSettings({ ...customSettings, primary_color: e.target.value })}
                       className="mt-1 h-12"
@@ -2359,41 +2378,41 @@ const Admin = () => {
                     <Label>Cor do Tema</Label>
                     <div className="mt-2 space-y-2">
                       <div className="flex items-center gap-2">
-                        <input 
-                          type="radio" 
-                          id="theme-dark" 
-                          name="theme" 
+                        <input
+                          type="radio"
+                          id="theme-dark"
+                          name="theme"
                           checked={customSettings.theme === 'dark'}
                           onChange={() => setCustomSettings({ ...customSettings, theme: 'dark' })}
-                          className="w-4 h-4" 
+                          className="w-4 h-4"
                         />
                         <Label htmlFor="theme-dark">Escuro (Dark)</Label>
                       </div>
                       <div className="flex items-center gap-2">
-                        <input 
-                          type="radio" 
-                          id="theme-light" 
-                          name="theme" 
+                        <input
+                          type="radio"
+                          id="theme-light"
+                          name="theme"
                           checked={customSettings.theme === 'light'}
                           onChange={() => setCustomSettings({ ...customSettings, theme: 'light' })}
-                          className="w-4 h-4" 
+                          className="w-4 h-4"
                         />
                         <Label htmlFor="theme-light">Claro (Light)</Label>
                       </div>
                       <div className="flex items-center gap-2">
-                        <input 
-                          type="radio" 
-                          id="theme-system" 
-                          name="theme" 
+                        <input
+                          type="radio"
+                          id="theme-system"
+                          name="theme"
                           checked={customSettings.theme === 'system'}
                           onChange={() => setCustomSettings({ ...customSettings, theme: 'system' })}
-                          className="w-4 h-4" 
+                          className="w-4 h-4"
                         />
                         <Label htmlFor="theme-system">Automático (Sistema)</Label>
                       </div>
                     </div>
                   </div>
-                  <Button 
+                  <Button
                     onClick={saveCustomSettings}
                     disabled={savingCustom}
                     className="w-full gap-2"
@@ -2433,13 +2452,13 @@ const Admin = () => {
                   </p>
                   <div className="space-y-3">
                     <div className="flex items-center gap-3 p-3 border border-border rounded-lg hover:bg-secondary/50 transition-colors cursor-pointer" onClick={() => setLayoutSettings({ ...layoutSettings, modules_layout_type: 'horizontal-scroll' })}>
-                      <input 
-                        type="radio" 
-                        id="layout-horizontal" 
-                        name="modules_layout_type" 
+                      <input
+                        type="radio"
+                        id="layout-horizontal"
+                        name="modules_layout_type"
                         checked={layoutSettings.modules_layout_type === 'horizontal-scroll'}
-                        onChange={() => {}}
-                        className="w-4 h-4" 
+                        onChange={() => { }}
+                        className="w-4 h-4"
                       />
                       <Label htmlFor="layout-horizontal" className="flex-1 cursor-pointer">
                         <div className="font-medium">Scroll Horizontal</div>
@@ -2447,13 +2466,13 @@ const Admin = () => {
                       </Label>
                     </div>
                     <div className="flex items-center gap-3 p-3 border border-border rounded-lg hover:bg-secondary/50 transition-colors cursor-pointer" onClick={() => setLayoutSettings({ ...layoutSettings, modules_layout_type: 'grid' })}>
-                      <input 
-                        type="radio" 
-                        id="layout-grid" 
-                        name="modules_layout_type" 
+                      <input
+                        type="radio"
+                        id="layout-grid"
+                        name="modules_layout_type"
                         checked={layoutSettings.modules_layout_type === 'grid'}
-                        onChange={() => {}}
-                        className="w-4 h-4" 
+                        onChange={() => { }}
+                        className="w-4 h-4"
                       />
                       <Label htmlFor="layout-grid" className="flex-1 cursor-pointer">
                         <div className="font-medium">Grade (Grid)</div>
@@ -2461,13 +2480,13 @@ const Admin = () => {
                       </Label>
                     </div>
                     <div className="flex items-center gap-3 p-3 border border-border rounded-lg hover:bg-secondary/50 transition-colors cursor-pointer" onClick={() => setLayoutSettings({ ...layoutSettings, modules_layout_type: 'list' })}>
-                      <input 
-                        type="radio" 
-                        id="layout-list" 
-                        name="modules_layout_type" 
+                      <input
+                        type="radio"
+                        id="layout-list"
+                        name="modules_layout_type"
                         checked={layoutSettings.modules_layout_type === 'list'}
-                        onChange={() => {}}
-                        className="w-4 h-4" 
+                        onChange={() => { }}
+                        className="w-4 h-4"
                       />
                       <Label htmlFor="layout-list" className="flex-1 cursor-pointer">
                         <div className="font-medium">Lista</div>
@@ -2481,8 +2500,8 @@ const Admin = () => {
                 {layoutSettings.modules_layout_type === 'grid' && (
                   <div>
                     <Label>Colunas da Grade</Label>
-                    <Select 
-                      value={layoutSettings.modules_grid_columns} 
+                    <Select
+                      value={layoutSettings.modules_grid_columns}
                       onValueChange={(value) => setLayoutSettings({ ...layoutSettings, modules_grid_columns: value })}
                     >
                       <SelectTrigger className="mt-1">
@@ -2500,8 +2519,8 @@ const Admin = () => {
                 {/* Título da Seção de Módulos */}
                 <div>
                   <Label>Título da Seção de Módulos</Label>
-                  <Input 
-                    placeholder="Ex: Método Sociedade" 
+                  <Input
+                    placeholder="Ex: Método Sociedade"
                     value={layoutSettings.modules_section_title}
                     onChange={e => setLayoutSettings({ ...layoutSettings, modules_section_title: e.target.value })}
                     className="mt-1"
@@ -2510,7 +2529,7 @@ const Admin = () => {
 
                 <div className="border-t border-border pt-6 space-y-4">
                   <h3 className="font-semibold text-lg">Seções da Página</h3>
-                  
+
                   {/* Seção Continue Assistindo */}
                   <div className="flex items-center justify-between p-4 border border-border rounded-lg">
                     <div className="space-y-0.5 flex-1">
@@ -2528,8 +2547,8 @@ const Admin = () => {
                   {layoutSettings.show_continue_watching && (
                     <div>
                       <Label>Título da Seção "Continue Assistindo"</Label>
-                      <Input 
-                        placeholder="Ex: Continue assistindo" 
+                      <Input
+                        placeholder="Ex: Continue assistindo"
                         value={layoutSettings.continue_watching_title}
                         onChange={e => setLayoutSettings({ ...layoutSettings, continue_watching_title: e.target.value })}
                         className="mt-1"
@@ -2554,8 +2573,8 @@ const Admin = () => {
                   {layoutSettings.show_accelerator && (
                     <div>
                       <Label>Título da Seção "Acelerador de Resultados"</Label>
-                      <Input 
-                        placeholder="Ex: Acelerador de Resultados" 
+                      <Input
+                        placeholder="Ex: Acelerador de Resultados"
                         value={layoutSettings.accelerator_title}
                         onChange={e => setLayoutSettings({ ...layoutSettings, accelerator_title: e.target.value })}
                         className="mt-1"
@@ -2565,8 +2584,8 @@ const Admin = () => {
                 </div>
 
                 {/* Botão Salvar */}
-                <Button 
-                  onClick={saveLayoutSettings} 
+                <Button
+                  onClick={saveLayoutSettings}
                   disabled={savingLayout}
                   className="w-full"
                   size="lg"
@@ -2601,8 +2620,8 @@ const Admin = () => {
                       {users.length} usuário{users.length !== 1 ? 's' : ''} cadastrado{users.length !== 1 ? 's' : ''}
                     </p>
                   </div>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={handleExportData}
                     disabled={users.length === 0}
                   >
@@ -2648,7 +2667,7 @@ const Admin = () => {
                       return (
                         <div key={userId} className="border border-border rounded-lg overflow-hidden">
                           {/* Card do Usuário */}
-                          <div 
+                          <div
                             className="flex items-center gap-4 p-4 hover:bg-secondary/50 transition-colors cursor-pointer"
                             onClick={() => setExpandedUserId(isExpanded ? null : userId)}
                           >
@@ -2684,11 +2703,10 @@ const Admin = () => {
                             {/* Status e Badges */}
                             <div className="flex items-center gap-3 flex-shrink-0">
                               <div className="flex gap-2">
-                                <span className={`px-2 py-1 text-xs font-medium rounded ${
-                                  userItem.premium_active 
-                                    ? 'bg-green-500/20 text-green-500 border border-green-500/30' 
-                                    : 'bg-gray-500/20 text-gray-500 border border-gray-500/30'
-                                }`}>
+                                <span className={`px-2 py-1 text-xs font-medium rounded ${userItem.premium_active
+                                  ? 'bg-green-500/20 text-green-500 border border-green-500/30'
+                                  : 'bg-gray-500/20 text-gray-500 border border-gray-500/30'
+                                  }`}>
                                   {userItem.premium_active ? 'Premium' : 'Free'}
                                 </span>
                                 <span className="px-2 py-1 text-xs font-medium bg-blue-500/20 text-blue-500 rounded border border-blue-500/30">
@@ -2704,7 +2722,7 @@ const Admin = () => {
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                  <DropdownMenuItem 
+                                  <DropdownMenuItem
                                     onClick={() => {
                                       setSelectedUserId(userId);
                                       setExpandedUserId(userId);
@@ -2732,8 +2750,8 @@ const Admin = () => {
                               {lockedCoursesForUser.map((course) => {
                                 const hasAccess = userAccesses.includes(course.id);
                                 return (
-                                  <div 
-                                    key={course.id} 
+                                  <div
+                                    key={course.id}
                                     className="flex items-center justify-between p-3 bg-background border border-border rounded-lg"
                                   >
                                     <div className="flex-1">
@@ -2788,7 +2806,7 @@ const Admin = () => {
                 <div className="space-y-4">
                   <div>
                     <Label>Gateway de Pagamento</Label>
-                    <Select 
+                    <Select
                       value={paymentSettings.payment_gateway_name}
                       onValueChange={(value) => setPaymentSettings({ ...paymentSettings, payment_gateway_name: value })}
                     >
@@ -2835,12 +2853,12 @@ const Admin = () => {
                     <Label>
                       API Key do Gateway <span className="text-red-500">*</span>
                     </Label>
-                    <Input 
+                    <Input
                       type="password"
-                      placeholder={paymentSettings.payment_gateway_name === 'asaas' ? 'Sua access_token do Asaas' : 
-                                  paymentSettings.payment_gateway_name === 'stripe' ? 'sk_test_... ou sk_live_...' :
-                                  paymentSettings.payment_gateway_name === 'mercadopago' ? 'APP_USR-...' :
-                                  'Sua chave API do gateway'}
+                      placeholder={paymentSettings.payment_gateway_name === 'asaas' ? 'Sua access_token do Asaas' :
+                        paymentSettings.payment_gateway_name === 'stripe' ? 'sk_test_... ou sk_live_...' :
+                          paymentSettings.payment_gateway_name === 'mercadopago' ? 'APP_USR-...' :
+                            'Sua chave API do gateway'}
                       value={paymentSettings.payment_gateway_api_key}
                       onChange={e => setPaymentSettings({ ...paymentSettings, payment_gateway_api_key: e.target.value })}
                       className="mt-1"
@@ -2855,7 +2873,7 @@ const Admin = () => {
 
                   <div>
                     <Label>Secret do Gateway (opcional)</Label>
-                    <Input 
+                    <Input
                       type="password"
                       placeholder="Secret adicional do gateway (apenas se necessário)"
                       value={paymentSettings.payment_gateway_secret}
@@ -2869,7 +2887,7 @@ const Admin = () => {
 
                   <div>
                     <Label>Webhook Secret (opcional - recomendado para produção)</Label>
-                    <Input 
+                    <Input
                       type="password"
                       placeholder="Secret para validar webhooks (deixe vazio se não usar)"
                       value={paymentSettings.payment_gateway_webhook_secret}
@@ -2887,7 +2905,7 @@ const Admin = () => {
                   <div>
                     <Label>URL do Webhook</Label>
                     <div className="flex gap-2 mt-1">
-                      <Input 
+                      <Input
                         value={paymentSettings.payment_webhook_url || `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/webhook-payment`}
                         readOnly
                         className="font-mono text-xs"
@@ -3005,7 +3023,7 @@ const Admin = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button 
+                    <Button
                       onClick={testGatewayConnection}
                       disabled={testingConnection || !paymentSettings.payment_gateway_api_key || savingPayment}
                       variant="outline"
@@ -3023,7 +3041,7 @@ const Admin = () => {
                         </>
                       )}
                     </Button>
-                    <Button 
+                    <Button
                       onClick={savePaymentSettings}
                       disabled={savingPayment || !paymentSettings.payment_gateway_api_key || testingConnection}
                       className="flex-1 gap-2"
@@ -3070,8 +3088,8 @@ const Admin = () => {
                       Últimas 50 transações de pagamento
                     </p>
                   </div>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={fetchTransactions}
                     disabled={loadingTransactions}
@@ -3158,7 +3176,7 @@ const Admin = () => {
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           {/* Aba Configurações */}
           <TabsContent value="settings" className="space-y-6">
             <Card>
@@ -3172,9 +3190,9 @@ const Admin = () => {
                 <div className="space-y-4">
                   <div>
                     <Label>Email de Suporte</Label>
-                    <Input 
-                      type="email" 
-                      placeholder="suporte@exemplo.com" 
+                    <Input
+                      type="email"
+                      placeholder="suporte@exemplo.com"
                       value={generalSettings.support_email}
                       onChange={e => setGeneralSettings({ ...generalSettings, support_email: e.target.value })}
                       className="mt-1"
@@ -3182,8 +3200,8 @@ const Admin = () => {
                   </div>
                   <div>
                     <Label>URL de Termos de Uso</Label>
-                    <Input 
-                      placeholder="https://exemplo.com/termos" 
+                    <Input
+                      placeholder="https://exemplo.com/termos"
                       value={generalSettings.terms_url}
                       onChange={e => setGeneralSettings({ ...generalSettings, terms_url: e.target.value })}
                       className="mt-1"
@@ -3191,14 +3209,14 @@ const Admin = () => {
                   </div>
                   <div>
                     <Label>URL de Política de Privacidade</Label>
-                    <Input 
-                      placeholder="https://exemplo.com/privacidade" 
+                    <Input
+                      placeholder="https://exemplo.com/privacidade"
                       value={generalSettings.privacy_url}
                       onChange={e => setGeneralSettings({ ...generalSettings, privacy_url: e.target.value })}
                       className="mt-1"
                     />
                   </div>
-                  <Button 
+                  <Button
                     onClick={saveGeneralSettings}
                     disabled={savingGeneral}
                     className="w-full gap-2"
