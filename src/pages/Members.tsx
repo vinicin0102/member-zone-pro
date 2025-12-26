@@ -9,7 +9,11 @@ import { HorizontalScrollSection } from '@/components/members/HorizontalScrollSe
 import { ModuleCardImage } from '@/components/members/ModuleCardImage';
 import { LessonContinueCard } from '@/components/members/LessonContinueCard';
 import { CourseOfferDialog } from '@/components/members/CourseOfferDialog';
-import { Menu, Bell, Handshake, Settings, User, LogOut, ChevronDown, FileText, Image, BarChart3, MessageSquare } from 'lucide-react';
+import {
+  Menu, Bell, Settings, User, LogOut, ChevronDown,
+  FileText, Image, BarChart3, MessageSquare, Search,
+  Sparkles, Play, Crown, Zap
+} from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -70,8 +74,8 @@ const Members = () => {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [lessonsCount, setLessonsCount] = useState<Record<string, number>>({});
   const [userProgress, setUserProgress] = useState<LessonProgress[]>([]);
-  const [userCourseAccess, setUserCourseAccess] = useState<string[]>([]); // IDs dos cursos que o usuário tem acesso
-  const [loading, setLoading] = useState(false); // Iniciar como false para não bloquear render
+  const [userCourseAccess, setUserCourseAccess] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
   const [offerDialogOpen, setOfferDialogOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
 
@@ -101,7 +105,7 @@ const Members = () => {
           data.forEach((item: any) => {
             configMap[item.key] = item.value || '';
           });
-          
+
           setLayoutConfig({
             modules_layout_type: configMap.modules_layout_type || 'horizontal-scroll',
             modules_section_title: configMap.modules_section_title || 'Método Sociedade',
@@ -237,7 +241,7 @@ const Members = () => {
               console.log('⚠️ Nenhum acesso encontrado para o usuário');
               setUserCourseAccess([]);
             }
-            
+
             if (accessResult.error) {
               console.error('❌ Erro ao buscar acessos:', accessResult.error);
             }
@@ -273,11 +277,11 @@ const Members = () => {
   const getModuleProgress = (moduleId: string) => {
     const moduleLessons = lessons.filter(l => l.module_id === moduleId);
     if (moduleLessons.length === 0) return 0;
-    
+
     const completed = userProgress.filter(
       p => p.completed && moduleLessons.some(l => l.id === p.lesson_id)
     ).length;
-    
+
     return Math.round((completed / moduleLessons.length) * 100);
   };
 
@@ -305,12 +309,12 @@ const Members = () => {
       console.log('❌ Curso não encontrado:', courseId);
       return false;
     }
-    
+
     // Se o curso não está trancado, todos têm acesso
     if (!course.is_locked) {
       return true;
     }
-    
+
     // Se está trancado, verificar se o usuário tem acesso
     const hasAccess = userCourseAccess.includes(courseId);
     console.log('🔒 Verificação de acesso:', {
@@ -321,7 +325,7 @@ const Members = () => {
       hasAccess,
       willShowOffer: !hasAccess
     });
-    
+
     return hasAccess;
   };
 
@@ -359,16 +363,20 @@ const Members = () => {
   const renderModulesByCourse = () => {
     try {
       const coursesWithModules = getModulesByCourse();
-      
+
       if (!coursesWithModules || coursesWithModules.length === 0) {
         return (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">Nenhum curso encontrado.</p>
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="p-6 rounded-full bg-white/5 mb-6">
+              <Play className="w-12 h-12 text-white/40" />
+            </div>
+            <p className="text-white/60 text-lg">Nenhum curso disponível no momento.</p>
+            <p className="text-white/40 text-sm mt-2">Novos conteúdos em breve!</p>
           </div>
         );
       }
 
-      return coursesWithModules.map(({ course, modules: courseModules }) => {
+      return coursesWithModules.map(({ course, modules: courseModules }, courseIndex) => {
         if (courseModules.length === 0) return null;
 
         const isCourseLocked = !hasCourseAccess(course.id);
@@ -376,40 +384,37 @@ const Members = () => {
         const renderCourseModules = () => {
           if (layoutConfig.modules_layout_type === 'grid') {
             const gridCols = {
-              '2': 'grid-cols-1 md:grid-cols-2',
-              '3': 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
-              '4': 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'
-            }[layoutConfig.modules_grid_columns] || 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
-            
+              '2': 'grid-cols-1 sm:grid-cols-2',
+              '3': 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
+              '4': 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+            }[layoutConfig.modules_grid_columns] || 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
+
             return (
-              <div className={`grid ${gridCols} gap-6`}>
-                {courseModules.map((module) => {
+              <div className={`grid ${gridCols} gap-4 md:gap-6 px-2 md:px-4`}>
+                {courseModules.map((module, index) => {
                   const progress = getModuleProgress(module.id);
                   return (
-                    <ModuleCardImage
+                    <div
                       key={module.id}
-                      title={module.title.toUpperCase()}
-                      imageUrl={module.image_url}
-                      progress={progress}
-                      isLocked={isCourseLocked}
-                      onClick={() => {
-                        console.log('Módulo clicado:', {
-                          moduleTitle: module.title,
-                          courseId: course.id,
-                          courseTitle: course.title,
-                          isCourseLocked,
-                          courseIsLocked: course.is_locked,
-                          hasAccess: hasCourseAccess(course.id)
-                        });
-                        if (!isCourseLocked) {
-                          navigate(`/members/module/${module.id}`);
-                        } else {
-                          console.log('Abrindo dialog de oferta para curso:', course.title);
-                          setSelectedCourse(course);
-                          setOfferDialogOpen(true);
-                        }
-                      }}
-                    />
+                      className="animate-fade-in"
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                      <ModuleCardImage
+                        title={module.title}
+                        imageUrl={module.image_url}
+                        progress={progress}
+                        isLocked={isCourseLocked}
+                        lessonsCount={lessonsCount[module.id]}
+                        onClick={() => {
+                          if (!isCourseLocked) {
+                            navigate(`/members/module/${module.id}`);
+                          } else {
+                            setSelectedCourse(course);
+                            setOfferDialogOpen(true);
+                          }
+                        }}
+                      />
+                    </div>
                   );
                 })}
               </div>
@@ -418,55 +423,52 @@ const Members = () => {
 
           if (layoutConfig.modules_layout_type === 'list') {
             return (
-              <div className="space-y-3">
-                {courseModules.map((module) => {
+              <div className="space-y-3 px-2 md:px-4">
+                {courseModules.map((module, index) => {
                   const progress = getModuleProgress(module.id);
                   return (
                     <div
                       key={module.id}
                       onClick={() => {
-                        console.log('Módulo clicado:', {
-                          moduleTitle: module.title,
-                          courseId: course.id,
-                          courseTitle: course.title,
-                          isCourseLocked,
-                          courseIsLocked: course.is_locked,
-                          hasAccess: hasCourseAccess(course.id)
-                        });
                         if (!isCourseLocked) {
                           navigate(`/members/module/${module.id}`);
                         } else {
-                          console.log('Abrindo dialog de oferta para curso:', course.title);
                           setSelectedCourse(course);
                           setOfferDialogOpen(true);
                         }
                       }}
-                      className={`flex items-center gap-4 p-4 bg-card border border-border rounded-lg transition-colors cursor-pointer ${
-                        isCourseLocked ? 'opacity-60' : 'hover:border-primary/50'
-                      }`}
+                      className={`flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-xl transition-all cursor-pointer animate-slide-in-right ${isCourseLocked
+                          ? 'opacity-60'
+                          : 'hover:bg-white/10 hover:border-primary/50 hover:scale-[1.01]'
+                        }`}
+                      style={{ animationDelay: `${index * 50}ms` }}
                     >
                       {module.image_url && (
-                        <img 
-                          src={module.image_url} 
+                        <img
+                          src={module.image_url}
                           alt={module.title}
-                          className={`w-24 h-24 rounded-lg object-cover flex-shrink-0 ${
-                            isCourseLocked ? 'grayscale' : ''
-                          }`}
+                          className={`w-24 h-16 md:w-32 md:h-20 rounded-lg object-cover flex-shrink-0 ${isCourseLocked ? 'grayscale opacity-60' : ''
+                            }`}
                         />
                       )}
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-lg">{module.title}</h3>
+                        <h3 className="font-semibold text-white text-base md:text-lg">{module.title}</h3>
                         {module.description && (
-                          <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{module.description}</p>
+                          <p className="text-sm text-white/60 mt-1 line-clamp-1">{module.description}</p>
                         )}
-                        <div className="mt-2">
-                          <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-primary transition-all"
+                        <div className="mt-3">
+                          <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-primary transition-all duration-700"
                               style={{ width: `${progress}%` }}
                             />
                           </div>
-                          <p className="text-xs text-muted-foreground mt-1">{progress}% concluído</p>
+                          <div className="flex items-center justify-between mt-1">
+                            <p className="text-xs text-white/40">{progress}% concluído</p>
+                            {lessonsCount[module.id] && (
+                              <p className="text-xs text-white/40">{lessonsCount[module.id]} aulas</p>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -475,29 +477,34 @@ const Members = () => {
               </div>
             );
           }
-          
+
           // Layout padrão (horizontal scroll)
           return (
             <HorizontalScrollSection title="">
-              {courseModules.map((module) => {
+              {courseModules.map((module, index) => {
                 const progress = getModuleProgress(module.id);
                 return (
-                  <ModuleCardImage
+                  <div
                     key={module.id}
-                    title={module.title.toUpperCase()}
-                    imageUrl={module.image_url}
-                    progress={progress}
-                    isLocked={isCourseLocked}
-                    onClick={() => {
-                      if (!isCourseLocked) {
-                        navigate(`/members/module/${module.id}`);
-                      } else {
-                        console.log('Abrindo dialog de oferta para curso (horizontal scroll):', course.title);
-                        setSelectedCourse(course);
-                        setOfferDialogOpen(true);
-                      }
-                    }}
-                  />
+                    className="animate-fade-in"
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    <ModuleCardImage
+                      title={module.title}
+                      imageUrl={module.image_url}
+                      progress={progress}
+                      isLocked={isCourseLocked}
+                      lessonsCount={lessonsCount[module.id]}
+                      onClick={() => {
+                        if (!isCourseLocked) {
+                          navigate(`/members/module/${module.id}`);
+                        } else {
+                          setSelectedCourse(course);
+                          setOfferDialogOpen(true);
+                        }
+                      }}
+                    />
+                  </div>
                 );
               })}
             </HorizontalScrollSection>
@@ -505,37 +512,55 @@ const Members = () => {
         };
 
         return (
-        <div key={course.id} className="space-y-4">
-          {/* Cabeçalho do Curso */}
-          <div className="flex items-center gap-4">
-            {course.image_url && (
-              <img 
-                src={course.image_url} 
-                alt={course.title}
-                className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-            )}
-            <div>
-              <h2 className="text-3xl font-bold text-white">{course.title}</h2>
-              {course.description && (
-                <p className="text-muted-foreground mt-1">{course.description}</p>
+          <section
+            key={course.id}
+            className="space-y-4 pt-6"
+            style={{ animationDelay: `${courseIndex * 150}ms` }}
+          >
+            {/* Course Header */}
+            <div className="flex items-center gap-4 px-2 md:px-4">
+              {course.image_url && (
+                <div className="relative">
+                  <img
+                    src={course.image_url}
+                    alt={course.title}
+                    className="w-14 h-14 md:w-16 md:h-16 rounded-xl object-cover border-2 border-white/10"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                  {isCourseLocked && (
+                    <div className="absolute inset-0 bg-black/60 rounded-xl flex items-center justify-center">
+                      <Crown className="w-5 h-5 text-amber-400" />
+                    </div>
+                  )}
+                </div>
               )}
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl md:text-2xl font-bold text-white">{course.title}</h2>
+                  {isCourseLocked && (
+                    <span className="px-2 py-0.5 text-xs font-semibold bg-amber-500/20 text-amber-400 rounded-full">
+                      Premium
+                    </span>
+                  )}
+                </div>
+                {course.description && (
+                  <p className="text-white/50 text-sm mt-1 line-clamp-1">{course.description}</p>
+                )}
+              </div>
             </div>
-          </div>
-          
-          {/* Módulos do Curso */}
-          {renderCourseModules()}
-        </div>
-      );
-    });
+
+            {/* Course Modules */}
+            {renderCourseModules()}
+          </section>
+        );
+      });
     } catch (error: any) {
       console.error('Error rendering modules by course:', error);
       return (
         <div className="text-center py-12">
-          <p className="text-destructive">Erro ao carregar cursos. Tente recarregar a página.</p>
+          <p className="text-red-400">Erro ao carregar cursos. Tente recarregar a página.</p>
         </div>
       );
     }
@@ -544,9 +569,14 @@ const Members = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-pulse flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-primary/20" />
-          <div className="h-4 w-32 bg-secondary rounded" />
+        <div className="flex flex-col items-center gap-6">
+          <div className="relative">
+            <div className="w-16 h-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Sparkles className="w-6 h-6 text-primary animate-pulse" />
+            </div>
+          </div>
+          <p className="text-white/60 text-sm animate-pulse">Carregando seu conteúdo...</p>
         </div>
       </div>
     );
@@ -556,105 +586,164 @@ const Members = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <p className="text-muted-foreground">Carregando usuário...</p>
+          <p className="text-white/60">Redirecionando...</p>
         </div>
       </div>
     );
   }
 
   const userInitial = profile?.full_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U';
-  
-  // Debug: Verificar status de admin
   const isAdminUser = isAdmin || user?.email === 'admin@gmail.com';
+  const firstName = profile?.full_name?.split(' ')[0] || 'Membro';
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header com Banner */}
-      <header className="relative bg-gradient-to-br from-primary/20 to-primary/5 border-b border-border/50">
+      {/* Netflix-style Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-background via-background/95 to-transparent">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-white">
-                  <Menu className="h-6 w-6" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56">
-                <DropdownMenuLabel>Ferramentas IA</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate('/members/ia/copy')}>
-                  <FileText className="mr-2 h-4 w-4" />
-                  <span>IA de Copy</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/members/ia/criativo')}>
-                  <Image className="mr-2 h-4 w-4" />
-                  <span>IA de Criativo</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/members/ia/campanha')}>
-                  <BarChart3 className="mr-2 h-4 w-4" />
-                  <span>Analista de Campanha</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/members/ia/atendimento')}>
-                  <MessageSquare className="mr-2 h-4 w-4" />
-                  <span>Analista de Atendimento</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            
-            <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between">
+            {/* Left side - Logo and Menu */}
+            <div className="flex items-center gap-4">
+              {siteSettings?.logo_url ? (
+                <img
+                  src={siteSettings.logo_url}
+                  alt={siteSettings.platform_name || 'Logo'}
+                  className="w-10 h-10 md:w-12 md:h-12 rounded-lg object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              ) : (
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-primary rounded-lg flex items-center justify-center">
+                  <Zap className="w-6 h-6 text-white" />
+                </div>
+              )}
+
+              {/* Desktop Navigation */}
+              <nav className="hidden md:flex items-center gap-6">
+                <button className="text-white font-semibold text-sm hover:text-primary transition-colors">
+                  Início
+                </button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="flex items-center gap-1 text-white/70 text-sm hover:text-white transition-colors">
+                    Ferramentas IA
+                    <ChevronDown className="w-4 h-4" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-56 bg-zinc-900 border-white/10">
+                    <DropdownMenuItem onClick={() => navigate('/members/ia/copy')} className="hover:bg-white/10">
+                      <FileText className="mr-2 h-4 w-4 text-primary" />
+                      <span>IA de Copy</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/members/ia/criativo')} className="hover:bg-white/10">
+                      <Image className="mr-2 h-4 w-4 text-primary" />
+                      <span>IA de Criativo</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/members/ia/campanha')} className="hover:bg-white/10">
+                      <BarChart3 className="mr-2 h-4 w-4 text-primary" />
+                      <span>Analista de Campanha</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/members/ia/atendimento')} className="hover:bg-white/10">
+                      <MessageSquare className="mr-2 h-4 w-4 text-primary" />
+                      <span>Analista de Atendimento</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </nav>
+
+              {/* Mobile Menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild className="md:hidden">
+                  <Button variant="ghost" size="icon" className="text-white">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-56 bg-zinc-900 border-white/10">
+                  <DropdownMenuLabel>Ferramentas IA</DropdownMenuLabel>
+                  <DropdownMenuSeparator className="bg-white/10" />
+                  <DropdownMenuItem onClick={() => navigate('/members/ia/copy')} className="hover:bg-white/10">
+                    <FileText className="mr-2 h-4 w-4 text-primary" />
+                    <span>IA de Copy</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/members/ia/criativo')} className="hover:bg-white/10">
+                    <Image className="mr-2 h-4 w-4 text-primary" />
+                    <span>IA de Criativo</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/members/ia/campanha')} className="hover:bg-white/10">
+                    <BarChart3 className="mr-2 h-4 w-4 text-primary" />
+                    <span>Analista de Campanha</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/members/ia/atendimento')} className="hover:bg-white/10">
+                    <MessageSquare className="mr-2 h-4 w-4 text-primary" />
+                    <span>Analista de Atendimento</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            {/* Right side - Actions */}
+            <div className="flex items-center gap-2 md:gap-4">
+              <Button variant="ghost" size="icon" className="text-white/70 hover:text-white hidden md:flex">
+                <Search className="h-5 w-5" />
+              </Button>
+
               {isAdminUser && (
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="ghost"
                   size="sm"
-                  className="text-white border-white/30 hover:bg-white/10"
+                  className="text-white/70 hover:text-white gap-2 hidden md:flex"
                   onClick={() => navigate('/admin')}
                 >
-                  <Settings className="w-4 h-4 mr-2" />
+                  <Settings className="w-4 h-4" />
                   Admin
                 </Button>
               )}
-              <Button variant="ghost" size="icon" className="text-white">
-                <Bell className="h-6 w-6" />
+
+              <Button variant="ghost" size="icon" className="text-white/70 hover:text-white relative">
+                <Bell className="h-5 w-5" />
+                <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full" />
               </Button>
-              
-              {/* Menu do Perfil */}
+
+              {/* Profile Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="text-white bg-white/10 hover:bg-white/20 rounded-full h-10 px-3 gap-2"
+                    className="flex items-center gap-2 px-2 hover:bg-white/10"
                   >
-                    <span className="text-sm font-semibold">{userInitial}</span>
-                    <ChevronDown className="h-4 w-4" />
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-white font-bold text-sm">
+                      {userInitial}
+                    </div>
+                    <ChevronDown className="h-4 w-4 text-white/70 hidden md:block" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuContent align="end" className="w-56 bg-zinc-900 border-white/10">
                   <DropdownMenuLabel>
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium">{profile?.full_name || 'Usuário'}</p>
-                      <p className="text-xs text-muted-foreground">{user?.email}</p>
+                      <p className="font-semibold text-white">{profile?.full_name || 'Usuário'}</p>
+                      <p className="text-xs text-white/50">{user?.email}</p>
                     </div>
                   </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate('/members')}>
+                  <DropdownMenuSeparator className="bg-white/10" />
+                  <DropdownMenuItem onClick={() => navigate('/members')} className="hover:bg-white/10">
                     <User className="mr-2 h-4 w-4" />
                     <span>Meu Perfil</span>
                   </DropdownMenuItem>
                   {isAdminUser && (
                     <>
-                      <DropdownMenuItem onClick={() => navigate('/admin')}>
+                      <DropdownMenuItem onClick={() => navigate('/admin')} className="hover:bg-white/10">
                         <Settings className="mr-2 h-4 w-4" />
                         <span>Painel Admin</span>
                       </DropdownMenuItem>
-                      <DropdownMenuSeparator />
+                      <DropdownMenuSeparator className="bg-white/10" />
                     </>
                   )}
                   {isPremium && (
-                    <DropdownMenuItem disabled>
-                      <span className="text-premium">⭐ Premium Ativo</span>
+                    <DropdownMenuItem disabled className="text-amber-400">
+                      <Crown className="mr-2 h-4 w-4" />
+                      <span>Premium Ativo</span>
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem onClick={signOut} className="text-destructive">
+                  <DropdownMenuItem onClick={signOut} className="text-red-400 hover:bg-red-500/10">
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Sair</span>
                   </DropdownMenuItem>
@@ -662,107 +751,110 @@ const Members = () => {
               </DropdownMenu>
             </div>
           </div>
-
-          {/* Banner com Logo */}
-          <div className="relative h-32 bg-gradient-to-r from-primary/30 to-primary/10 rounded-xl overflow-hidden mb-6">
-            <div className="absolute inset-0 flex items-center justify-between px-6">
-              <div className="flex items-center gap-4">
-                {siteSettings?.logo_url ? (
-                  <img 
-                    src={siteSettings.logo_url} 
-                    alt={siteSettings.platform_name || 'Logo'} 
-                    className="w-16 h-16 rounded-full object-cover border-2 border-white/20"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
-                  />
-                ) : (
-                  <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center">
-                    <Handshake className="h-8 w-8 text-white" />
-                  </div>
-                )}
-                <div>
-                  <h1 className="text-2xl font-bold text-white">
-                    {siteSettings?.header_title || siteSettings?.platform_name || 'Area De Mentorados'}
-                  </h1>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </header>
 
-      {/* Banner Promocional - Abaixo do Header */}
-      {siteSettings?.banner_image_url && (
-        <div 
-          className={`relative w-full ${siteSettings.banner_redirect_url ? 'cursor-pointer' : ''}`}
-          onClick={() => {
-            if (siteSettings.banner_redirect_url) {
-              window.open(siteSettings.banner_redirect_url, '_blank');
-            }
-          }}
-        >
-          <img 
-            src={siteSettings.banner_image_url} 
-            alt={siteSettings.banner_text || 'Banner'} 
-            className="w-full object-cover"
-            style={{ maxHeight: '200px' }}
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.display = 'none';
-            }}
-          />
-          {siteSettings.banner_text && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-              <p className="text-white font-semibold text-lg px-4 text-center">
-                {siteSettings.banner_text}
-              </p>
+      {/* Hero Banner Section */}
+      <div className="relative pt-20">
+        {siteSettings?.banner_image_url ? (
+          <div
+            className="relative h-[50vh] md:h-[60vh] bg-cover bg-center"
+            style={{ backgroundImage: `url(${siteSettings.banner_image_url})` }}
+          >
+            <div className="absolute inset-0 hero-gradient" />
+            <div className="absolute inset-0 vignette" />
+
+            <div className="absolute bottom-0 left-0 right-0 p-6 md:p-12">
+              <div className="container mx-auto">
+                <h1 className="text-3xl md:text-5xl font-bold text-white mb-2 animate-fade-in">
+                  {siteSettings?.header_title || `Bem-vindo, ${firstName}!`}
+                </h1>
+                {siteSettings?.banner_text && (
+                  <p className="text-lg md:text-xl text-white/80 max-w-2xl animate-fade-in" style={{ animationDelay: '100ms' }}>
+                    {siteSettings.banner_text}
+                  </p>
+                )}
+                {siteSettings?.banner_redirect_url && (
+                  <Button
+                    className="mt-6 bg-white text-black hover:bg-white/90 font-semibold gap-2 animate-fade-in"
+                    style={{ animationDelay: '200ms' }}
+                    onClick={() => window.open(siteSettings.banner_redirect_url!, '_blank')}
+                  >
+                    <Play className="w-4 h-4 fill-current" />
+                    Saiba mais
+                  </Button>
+                )}
+              </div>
             </div>
-          )}
-        </div>
-      )}
+          </div>
+        ) : (
+          <div className="relative h-[35vh] md:h-[40vh] bg-gradient-to-b from-primary/20 via-primary/5 to-transparent">
+            <div className="absolute inset-0 hero-gradient" />
+            <div className="absolute bottom-0 left-0 right-0 p-6 md:p-12">
+              <div className="container mx-auto">
+                <h1 className="text-3xl md:text-5xl font-bold text-white mb-2 animate-fade-in">
+                  Olá, {firstName}! 👋
+                </h1>
+                <p className="text-lg text-white/60 animate-fade-in" style={{ animationDelay: '100ms' }}>
+                  {siteSettings?.header_title || 'Pronto para evoluir hoje?'}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
-      <main className="container mx-auto px-4 py-6 space-y-12">
-        {/* Cursos com seus Módulos */}
-        {renderModulesByCourse()}
-
-        {/* Seção Continue assistindo */}
+      {/* Main Content */}
+      <main className="container mx-auto pb-12 space-y-8 -mt-8 relative z-10">
+        {/* Continue Watching Section */}
         {layoutConfig.show_continue_watching && lessons.length > 0 && (
-          <HorizontalScrollSection title={layoutConfig.continue_watching_title}>
-            {getContinueWatchingLessons().map((lesson) => {
-              return (
-                <LessonContinueCard
+          <section className="animate-fade-in">
+            <HorizontalScrollSection title={layoutConfig.continue_watching_title}>
+              {getContinueWatchingLessons().map((lesson, index) => (
+                <div
                   key={lesson.id}
-                  moduleTitle={lesson.moduleTitle}
-                  lessonTitle={lesson.title}
-                  lessonNumber={`Aula ${lesson.order}) ${lesson.title}`}
-                  progress={lesson.progress}
-                  onClick={() => navigate(`/members/lesson/${lesson.id}`)}
-                />
-              );
-            })}
-          </HorizontalScrollSection>
+                  className="animate-fade-in"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <LessonContinueCard
+                    moduleTitle={lesson.moduleTitle}
+                    lessonTitle={lesson.title}
+                    lessonNumber={`Aula ${lesson.order}`}
+                    progress={lesson.progress}
+                    onClick={() => navigate(`/members/lesson/${lesson.id}`)}
+                  />
+                </div>
+              ))}
+            </HorizontalScrollSection>
+          </section>
         )}
 
-        {/* Seção Acelerador de Resultados */}
+        {/* Courses with Modules */}
+        {renderModulesByCourse()}
+
+        {/* Accelerator Section */}
         {layoutConfig.show_accelerator && (
-          <HorizontalScrollSection title={layoutConfig.accelerator_title}>
-            <div className="flex-shrink-0 w-[280px] h-[180px] rounded-xl bg-card border border-border flex items-center justify-center">
-              <p className="text-muted-foreground">Em breve</p>
+          <section className="animate-fade-in px-2 md:px-4">
+            <h2 className="text-xl md:text-2xl font-bold text-white mb-4 px-2">
+              {layoutConfig.accelerator_title}
+            </h2>
+            <div className="flex items-center justify-center h-48 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10">
+              <div className="text-center">
+                <Sparkles className="w-10 h-10 text-primary/60 mx-auto mb-3 animate-pulse" />
+                <p className="text-white/40">Em breve, novidades incríveis!</p>
+              </div>
             </div>
-          </HorizontalScrollSection>
+          </section>
         )}
       </main>
 
-      {/* Dialog de Oferta do Curso */}
+      {/* Course Offer Dialog */}
       <CourseOfferDialog
         open={offerDialogOpen && selectedCourse !== null}
         onOpenChange={(open) => {
-          console.log('📱 Dialog onOpenChange:', { open, courseTitle: selectedCourse?.title });
           setOfferDialogOpen(open);
           if (!open) {
-            // Pequeno delay para permitir animação de fechamento
             setTimeout(() => {
-              console.log('🔒 Fechando dialog e limpando selectedCourse');
               setSelectedCourse(null);
             }, 200);
           }
@@ -772,10 +864,6 @@ const Members = () => {
         videoEmbedCode={selectedCourse?.offer_video_url || null}
         purchaseUrl={selectedCourse?.purchase_url || null}
         onPurchaseClick={() => {
-          console.log('🛒 Botão de compra clicado:', {
-            purchaseUrl: selectedCourse?.purchase_url,
-            courseTitle: selectedCourse?.title
-          });
           if (selectedCourse?.purchase_url) {
             window.open(selectedCourse.purchase_url, '_blank');
           } else {

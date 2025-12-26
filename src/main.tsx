@@ -2,6 +2,9 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 
+// Força o tema escuro (estilo Netflix)
+document.documentElement.classList.add('dark');
+
 // Adicionar tratamento de erro global
 window.addEventListener('error', (event) => {
   console.error('Global error:', event.error);
