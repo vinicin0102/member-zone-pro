@@ -122,19 +122,30 @@
 @layer base {
   * {
     @apply border-border;
+    box-sizing: border-box;
+  }
+
+  html {
+    /* CRITICAL: Prevent horizontal scroll that causes "wobbly" effect */
+    overflow-x: hidden;
+    width: 100%;
+    /* Prevent pull-to-refresh on mobile */
+    overscroll-behavior-y: none;
   }
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
+    /* CRITICAL: Lock horizontal scroll */
+    overflow-x: hidden;
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
     /* Safe area support for iOS */
-    padding-top: env(safe-area-inset-top);
-  }
-
-  html {
-    @apply scroll-smooth;
-    /* Prevent pull-to-refresh on mobile */
-    overscroll-behavior: none;
+    padding: env(safe-area-inset-top) 0 0 0;
+    /* Prevent layout shifts */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   /* Força o tema escuro */
@@ -143,22 +154,36 @@
     @apply dark;
   }
 
+  /* Prevent any element from causing horizontal overflow */
+  #root {
+    overflow-x: hidden;
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
   /* Safe area bottom for fixed elements */
   .safe-area-bottom {
-    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
   }
 
   /* Mobile optimizations */
   @media (max-width: 640px) {
     html {
-      font-size: 15px;
+      font-size: 16px;
     }
 
-    /* Prevent text selection on UI elements */
+    /* Prevent text selection and tap highlight on UI elements */
     button,
     a {
       -webkit-tap-highlight-color: transparent;
       user-select: none;
+    }
+
+    /* Prevent images from causing layout shift */
+    img {
+      max-width: 100%;
+      height: auto;
     }
   }
 

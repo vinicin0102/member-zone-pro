@@ -39,7 +39,7 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background overflow-hidden">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-background via-background/80 to-transparent">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">

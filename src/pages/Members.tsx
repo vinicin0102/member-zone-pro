@@ -597,7 +597,7 @@ const Members = () => {
   const firstName = profile?.full_name?.split(' ')[0] || 'Membro';
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Netflix-style Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-background via-background/95 to-transparent">
         <div className="container mx-auto px-4 py-4">
