@@ -438,8 +438,8 @@ const Members = () => {
                         }
                       }}
                       className={`flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-xl transition-all cursor-pointer animate-slide-in-right ${isCourseLocked
-                          ? 'opacity-60'
-                          : 'hover:bg-white/10 hover:border-primary/50 hover:scale-[1.01]'
+                        ? 'opacity-60'
+                        : 'hover:bg-white/10 hover:border-primary/50 hover:scale-[1.01]'
                         }`}
                       style={{ animationDelay: `${index * 50}ms` }}
                     >
@@ -754,76 +754,59 @@ const Members = () => {
         </div>
       </header>
 
-      {/* Hero Banner Section */}
-      <div className="relative pt-20">
+      {/* Hero Banner Section - Simplified for mobile */}
+      <div className="pt-16 sm:pt-20">
         {siteSettings?.banner_image_url ? (
-          <div
-            className="relative h-[50vh] md:h-[60vh] bg-cover bg-center"
-            style={{ backgroundImage: `url(${siteSettings.banner_image_url})` }}
-          >
-            <div className="absolute inset-0 hero-gradient" />
-            <div className="absolute inset-0 vignette" />
+          <div className="relative">
+            {/* Banner image with fixed aspect ratio */}
+            <div className="relative w-full aspect-[2/1] sm:aspect-[3/1] overflow-hidden">
+              <img
+                src={siteSettings.banner_image_url}
+                alt="Banner"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
+            </div>
 
-            <div className="absolute bottom-0 left-0 right-0 p-6 md:p-12">
-              <div className="container mx-auto">
-                <h1 className="text-3xl md:text-5xl font-bold text-white mb-2 animate-fade-in">
-                  {siteSettings?.header_title || `Bem-vindo, ${firstName}!`}
-                </h1>
-                {siteSettings?.banner_text && (
-                  <p className="text-lg md:text-xl text-white/80 max-w-2xl animate-fade-in" style={{ animationDelay: '100ms' }}>
-                    {siteSettings.banner_text}
-                  </p>
-                )}
-                {siteSettings?.banner_redirect_url && (
-                  <Button
-                    className="mt-6 bg-white text-black hover:bg-white/90 font-semibold gap-2 animate-fade-in"
-                    style={{ animationDelay: '200ms' }}
-                    onClick={() => window.open(siteSettings.banner_redirect_url!, '_blank')}
-                  >
-                    <Play className="w-4 h-4 fill-current" />
-                    Saiba mais
-                  </Button>
-                )}
-              </div>
+            {/* Content overlay */}
+            <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8">
+              <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-white mb-1">
+                {siteSettings?.header_title || `Olá, ${firstName}!`}
+              </h1>
+              {siteSettings?.banner_text && (
+                <p className="text-sm sm:text-base text-white/70 max-w-xl line-clamp-2">
+                  {siteSettings.banner_text}
+                </p>
+              )}
             </div>
           </div>
         ) : (
-          <div className="relative h-[35vh] md:h-[40vh] bg-gradient-to-b from-primary/20 via-primary/5 to-transparent">
-            <div className="absolute inset-0 hero-gradient" />
-            <div className="absolute bottom-0 left-0 right-0 p-6 md:p-12">
-              <div className="container mx-auto">
-                <h1 className="text-3xl md:text-5xl font-bold text-white mb-2 animate-fade-in">
-                  Olá, {firstName}! 👋
-                </h1>
-                <p className="text-lg text-white/60 animate-fade-in" style={{ animationDelay: '100ms' }}>
-                  {siteSettings?.header_title || 'Pronto para evoluir hoje?'}
-                </p>
-              </div>
-            </div>
+          <div className="px-4 py-6 sm:py-8">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">
+              Olá, {firstName}! 👋
+            </h1>
+            <p className="text-sm sm:text-base text-white/60 mt-1">
+              {siteSettings?.header_title || 'Pronto para evoluir?'}
+            </p>
           </div>
         )}
       </div>
 
       {/* Main Content */}
-      <main className="container mx-auto pb-12 space-y-8 -mt-8 relative z-10">
+      <main className="pb-8 sm:pb-12 space-y-6 sm:space-y-8">
         {/* Continue Watching Section */}
         {layoutConfig.show_continue_watching && lessons.length > 0 && (
-          <section className="animate-fade-in">
+          <section>
             <HorizontalScrollSection title={layoutConfig.continue_watching_title}>
-              {getContinueWatchingLessons().map((lesson, index) => (
-                <div
+              {getContinueWatchingLessons().map((lesson) => (
+                <LessonContinueCard
                   key={lesson.id}
-                  className="animate-fade-in"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <LessonContinueCard
-                    moduleTitle={lesson.moduleTitle}
-                    lessonTitle={lesson.title}
-                    lessonNumber={`Aula ${lesson.order}`}
-                    progress={lesson.progress}
-                    onClick={() => navigate(`/members/lesson/${lesson.id}`)}
-                  />
-                </div>
+                  moduleTitle={lesson.moduleTitle}
+                  lessonTitle={lesson.title}
+                  lessonNumber={`Aula ${lesson.order}`}
+                  progress={lesson.progress}
+                  onClick={() => navigate(`/members/lesson/${lesson.id}`)}
+                />
               ))}
             </HorizontalScrollSection>
           </section>
@@ -834,14 +817,14 @@ const Members = () => {
 
         {/* Accelerator Section */}
         {layoutConfig.show_accelerator && (
-          <section className="animate-fade-in px-2 md:px-4">
-            <h2 className="text-xl md:text-2xl font-bold text-white mb-4 px-2">
+          <section className="px-4">
+            <h2 className="text-base sm:text-lg md:text-xl font-bold text-white mb-3">
               {layoutConfig.accelerator_title}
             </h2>
-            <div className="flex items-center justify-center h-48 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10">
+            <div className="flex items-center justify-center h-32 sm:h-40 rounded-xl bg-white/5 border border-white/10">
               <div className="text-center">
-                <Sparkles className="w-10 h-10 text-primary/60 mx-auto mb-3 animate-pulse" />
-                <p className="text-white/40">Em breve, novidades incríveis!</p>
+                <Sparkles className="w-8 h-8 text-primary/50 mx-auto mb-2" />
+                <p className="text-white/40 text-sm">Em breve!</p>
               </div>
             </div>
           </section>
