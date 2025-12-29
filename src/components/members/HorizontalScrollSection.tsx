@@ -42,7 +42,7 @@ export const HorizontalScrollSection = ({ title, children, className }: Horizont
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
-      const scrollAmount = scrollRef.current.clientWidth * 0.75;
+      const scrollAmount = scrollRef.current.clientWidth * 0.8;
       scrollRef.current.scrollBy({
         left: direction === 'right' ? scrollAmount : -scrollAmount,
         behavior: 'smooth'
@@ -51,50 +51,60 @@ export const HorizontalScrollSection = ({ title, children, className }: Horizont
   };
 
   return (
-    <div className={cn('relative', className)}>
+    <div className={cn('relative group/section', className)}>
       {/* Title */}
       {title && (
-        <h2 className="text-base sm:text-lg md:text-xl font-bold text-white mb-3 px-4">
+        <h2 className="netflix-row-title">
           {title}
         </h2>
       )}
 
       {/* Scroll container */}
-      <div className="relative">
-        {/* Left gradient + button (desktop only) */}
+      <div className="relative -mx-4 md:-mx-8 px-4 md:px-8">
+        {/* Left navigation button */}
         {canScrollLeft && (
-          <button
-            onClick={() => scroll('left')}
-            className="hidden md:flex absolute left-0 top-0 bottom-0 z-20 w-12 items-center justify-center bg-gradient-to-r from-background to-transparent"
-            aria-label="Scroll left"
-          >
-            <div className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 transition-colors">
-              <ChevronLeft className="h-5 w-5 text-white" />
-            </div>
-          </button>
+          <>
+            {/* Gradient fade */}
+            <div className="hidden md:block absolute left-0 top-0 bottom-0 w-16 z-10 pointer-events-none bg-gradient-to-r from-[#0a0a0a] to-transparent" />
+
+            {/* Button */}
+            <button
+              onClick={() => scroll('left')}
+              className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-20 w-12 h-full items-center justify-start pl-2 
+                opacity-0 group-hover/section:opacity-100 transition-all duration-200"
+              aria-label="Scroll left"
+            >
+              <div className="p-2 rounded-full bg-black/80 hover:bg-black border border-white/10 hover:border-white/20 transition-all shadow-lg backdrop-blur-sm">
+                <ChevronLeft className="h-5 w-5 text-white" />
+              </div>
+            </button>
+          </>
         )}
 
-        {/* Right gradient + button (desktop only) */}
+        {/* Right navigation button */}
         {canScrollRight && (
-          <button
-            onClick={() => scroll('right')}
-            className="hidden md:flex absolute right-0 top-0 bottom-0 z-20 w-12 items-center justify-center bg-gradient-to-l from-background to-transparent"
-            aria-label="Scroll right"
-          >
-            <div className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 transition-colors">
-              <ChevronRight className="h-5 w-5 text-white" />
-            </div>
-          </button>
+          <>
+            {/* Gradient fade */}
+            <div className="hidden md:block absolute right-0 top-0 bottom-0 w-16 z-10 pointer-events-none bg-gradient-to-l from-[#0a0a0a] to-transparent" />
+
+            {/* Button */}
+            <button
+              onClick={() => scroll('right')}
+              className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-20 w-12 h-full items-center justify-end pr-2
+                opacity-0 group-hover/section:opacity-100 transition-all duration-200"
+              aria-label="Scroll right"
+            >
+              <div className="p-2 rounded-full bg-black/80 hover:bg-black border border-white/10 hover:border-white/20 transition-all shadow-lg backdrop-blur-sm">
+                <ChevronRight className="h-5 w-5 text-white" />
+              </div>
+            </button>
+          </>
         )}
 
         {/* Scrollable content */}
         <div
           ref={scrollRef}
-          className="flex gap-2 sm:gap-3 overflow-x-auto px-4 pb-2 scrollbar-hide"
-          style={{
-            WebkitOverflowScrolling: 'touch',
-            scrollSnapType: 'x proximity'
-          }}
+          className="netflix-row-slider scrollbar-hide"
         >
           {children}
         </div>

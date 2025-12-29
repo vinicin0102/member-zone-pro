@@ -12,7 +12,7 @@ import { CourseOfferDialog } from '@/components/members/CourseOfferDialog';
 import {
   Menu, Bell, Settings, User, LogOut, ChevronDown,
   FileText, Image, BarChart3, MessageSquare, Search,
-  Sparkles, Play, Crown, Zap
+  Sparkles, Play, Crown, Zap, Info
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -63,7 +63,7 @@ const Members = () => {
     modules_layout_type: 'horizontal-scroll',
     modules_section_title: 'Método Sociedade',
     show_continue_watching: true,
-    continue_watching_title: 'Continue assistindo',
+    continue_watching_title: 'Continuar Assistindo',
     show_accelerator: true,
     accelerator_title: 'Acelerador de Resultados',
     modules_grid_columns: '3'
@@ -78,6 +78,16 @@ const Members = () => {
   const [loading, setLoading] = useState(false);
   const [offerDialogOpen, setOfferDialogOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
+
+  // Handle header scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsHeaderScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Debug: monitorar mudanças no dialog
   useEffect(() => {
@@ -110,7 +120,7 @@ const Members = () => {
             modules_layout_type: configMap.modules_layout_type || 'horizontal-scroll',
             modules_section_title: configMap.modules_section_title || 'Método Sociedade',
             show_continue_watching: configMap.show_continue_watching !== 'false',
-            continue_watching_title: configMap.continue_watching_title || 'Continue assistindo',
+            continue_watching_title: configMap.continue_watching_title || 'Continuar Assistindo',
             show_accelerator: configMap.show_accelerator !== 'false',
             accelerator_title: configMap.accelerator_title || 'Acelerador de Resultados',
             modules_grid_columns: configMap.modules_grid_columns || '3'
@@ -291,7 +301,7 @@ const Members = () => {
   };
 
   const getContinueWatchingLessons = () => {
-    const continueLessons = lessons.slice(0, 5).map(lesson => {
+    const continueLessons = lessons.slice(0, 6).map(lesson => {
       const module = modules.find(m => m.id === lesson.module_id);
       return {
         ...lesson,
@@ -366,12 +376,16 @@ const Members = () => {
 
       if (!coursesWithModules || coursesWithModules.length === 0) {
         return (
-          <div className="flex flex-col items-center justify-center py-20">
-            <div className="p-6 rounded-full bg-white/5 mb-6">
-              <Play className="w-12 h-12 text-white/40" />
+          <div className="flex flex-col items-center justify-center py-20 px-4">
+            <div className="p-8 rounded-2xl bg-white/5 mb-6 animate-float">
+              <Play className="w-16 h-16 text-white/30" />
             </div>
-            <p className="text-white/60 text-lg">Nenhum curso disponível no momento.</p>
-            <p className="text-white/40 text-sm mt-2">Novos conteúdos em breve!</p>
+            <h3 className="text-white/80 text-xl font-semibold text-center">
+              Nenhum curso disponível
+            </h3>
+            <p className="text-white/40 text-sm mt-2 text-center max-w-sm">
+              Novos conteúdos estão sendo preparados para você. Volte em breve!
+            </p>
           </div>
         );
       }
@@ -390,14 +404,14 @@ const Members = () => {
             }[layoutConfig.modules_grid_columns] || 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
 
             return (
-              <div className={`grid ${gridCols} gap-4 md:gap-6 px-2 md:px-4`}>
+              <div className={`grid ${gridCols} gap-3 md:gap-4`}>
                 {courseModules.map((module, index) => {
                   const progress = getModuleProgress(module.id);
                   return (
                     <div
                       key={module.id}
                       className="animate-fade-in"
-                      style={{ animationDelay: `${index * 100}ms` }}
+                      style={{ animationDelay: `${index * 80}ms` }}
                     >
                       <ModuleCardImage
                         title={module.title}
@@ -423,7 +437,7 @@ const Members = () => {
 
           if (layoutConfig.modules_layout_type === 'list') {
             return (
-              <div className="space-y-3 px-2 md:px-4">
+              <div className="space-y-3">
                 {courseModules.map((module, index) => {
                   const progress = getModuleProgress(module.id);
                   return (
@@ -437,9 +451,9 @@ const Members = () => {
                           setOfferDialogOpen(true);
                         }
                       }}
-                      className={`flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-xl transition-all cursor-pointer animate-slide-in-right ${isCourseLocked
+                      className={`flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-lg transition-all cursor-pointer animate-slide-in-right ${isCourseLocked
                         ? 'opacity-60'
-                        : 'hover:bg-white/10 hover:border-primary/50 hover:scale-[1.01]'
+                        : 'hover:bg-white/10 hover:border-white/20 hover:scale-[1.01]'
                         }`}
                       style={{ animationDelay: `${index * 50}ms` }}
                     >
@@ -447,23 +461,23 @@ const Members = () => {
                         <img
                           src={module.image_url}
                           alt={module.title}
-                          className={`w-24 h-16 md:w-32 md:h-20 rounded-lg object-cover flex-shrink-0 ${isCourseLocked ? 'grayscale opacity-60' : ''
+                          className={`w-28 h-16 md:w-36 md:h-20 rounded-md object-cover flex-shrink-0 ${isCourseLocked ? 'grayscale opacity-60' : ''
                             }`}
                         />
                       )}
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-white text-base md:text-lg">{module.title}</h3>
                         {module.description && (
-                          <p className="text-sm text-white/60 mt-1 line-clamp-1">{module.description}</p>
+                          <p className="text-sm text-white/50 mt-1 line-clamp-1">{module.description}</p>
                         )}
                         <div className="mt-3">
-                          <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                          <div className="netflix-progress">
                             <div
-                              className="h-full bg-primary transition-all duration-700"
+                              className="netflix-progress-bar"
                               style={{ width: `${progress}%` }}
                             />
                           </div>
-                          <div className="flex items-center justify-between mt-1">
+                          <div className="flex items-center justify-between mt-1.5">
                             <p className="text-xs text-white/40">{progress}% concluído</p>
                             {lessonsCount[module.id] && (
                               <p className="text-xs text-white/40">{lessonsCount[module.id]} aulas</p>
@@ -487,7 +501,7 @@ const Members = () => {
                   <div
                     key={module.id}
                     className="animate-fade-in"
-                    style={{ animationDelay: `${index * 100}ms` }}
+                    style={{ animationDelay: `${index * 80}ms` }}
                   >
                     <ModuleCardImage
                       title={module.title}
@@ -514,39 +528,40 @@ const Members = () => {
         return (
           <section
             key={course.id}
-            className="space-y-4 pt-6"
+            className="netflix-row space-y-3 md:space-y-4 pt-6 md:pt-8"
             style={{ animationDelay: `${courseIndex * 150}ms` }}
           >
             {/* Course Header */}
-            <div className="flex items-center gap-4 px-2 md:px-4">
+            <div className="flex items-center gap-4">
               {course.image_url && (
-                <div className="relative">
+                <div className="relative flex-shrink-0">
                   <img
                     src={course.image_url}
                     alt={course.title}
-                    className="w-14 h-14 md:w-16 md:h-16 rounded-xl object-cover border-2 border-white/10"
+                    className="w-12 h-12 md:w-14 md:h-14 rounded-lg object-cover border border-white/10"
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = 'none';
                     }}
                   />
                   {isCourseLocked && (
-                    <div className="absolute inset-0 bg-black/60 rounded-xl flex items-center justify-center">
-                      <Crown className="w-5 h-5 text-amber-400" />
+                    <div className="absolute inset-0 bg-black/70 rounded-lg flex items-center justify-center">
+                      <Crown className="w-4 h-4 text-amber-400" />
                     </div>
                   )}
                 </div>
               )}
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <h2 className="text-xl md:text-2xl font-bold text-white">{course.title}</h2>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h2 className="netflix-row-title !mb-0">{course.title}</h2>
                   {isCourseLocked && (
-                    <span className="px-2 py-0.5 text-xs font-semibold bg-amber-500/20 text-amber-400 rounded-full">
+                    <span className="netflix-premium-tag">
+                      <Crown className="w-3 h-3" />
                       Premium
                     </span>
                   )}
                 </div>
                 {course.description && (
-                  <p className="text-white/50 text-sm mt-1 line-clamp-1">{course.description}</p>
+                  <p className="text-white/40 text-sm mt-0.5 line-clamp-1">{course.description}</p>
                 )}
               </div>
             </div>
@@ -568,7 +583,7 @@ const Members = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
         <div className="flex flex-col items-center gap-6">
           <div className="relative">
             <div className="w-16 h-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
@@ -576,7 +591,7 @@ const Members = () => {
               <Sparkles className="w-6 h-6 text-primary animate-pulse" />
             </div>
           </div>
-          <p className="text-white/60 text-sm animate-pulse">Carregando seu conteúdo...</p>
+          <p className="text-white/50 text-sm animate-pulse font-medium">Carregando conteúdo...</p>
         </div>
       </div>
     );
@@ -584,7 +599,7 @@ const Members = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
         <div className="text-center">
           <p className="text-white/60">Redirecionando...</p>
         </div>
@@ -597,31 +612,31 @@ const Members = () => {
   const firstName = profile?.full_name?.split(' ')[0] || 'Membro';
 
   return (
-    <div className="min-h-screen bg-background overflow-x-hidden">
+    <div className="min-h-screen bg-[#0a0a0a] overflow-x-hidden">
       {/* Netflix-style Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-background via-background/95 to-transparent">
-        <div className="container mx-auto px-4 py-4">
+      <header className={`netflix-header ${isHeaderScrolled ? 'scrolled' : 'netflix-header-gradient'}`}>
+        <div className="container mx-auto px-4 md:px-8 py-3 md:py-4">
           <div className="flex items-center justify-between">
             {/* Left side - Logo and Menu */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 md:gap-8">
               {siteSettings?.logo_url ? (
                 <img
                   src={siteSettings.logo_url}
                   alt={siteSettings.platform_name || 'Logo'}
-                  className="w-10 h-10 md:w-12 md:h-12 rounded-lg object-cover"
+                  className="w-8 h-8 md:w-10 md:h-10 rounded-md object-cover"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = 'none';
                   }}
                 />
               ) : (
-                <div className="w-10 h-10 md:w-12 md:h-12 bg-primary rounded-lg flex items-center justify-center">
-                  <Zap className="w-6 h-6 text-white" />
+                <div className="w-8 h-8 md:w-10 md:h-10 bg-primary rounded-md flex items-center justify-center">
+                  <Zap className="w-5 h-5 text-white" />
                 </div>
               )}
 
               {/* Desktop Navigation */}
               <nav className="hidden md:flex items-center gap-6">
-                <button className="text-white font-semibold text-sm hover:text-primary transition-colors">
+                <button className="text-white font-medium text-sm hover:text-white/70 transition-colors">
                   Início
                 </button>
                 <DropdownMenu>
@@ -629,20 +644,20 @@ const Members = () => {
                     Ferramentas IA
                     <ChevronDown className="w-4 h-4" />
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-56 bg-zinc-900 border-white/10">
-                    <DropdownMenuItem onClick={() => navigate('/members/ia/copy')} className="hover:bg-white/10">
+                  <DropdownMenuContent align="start" className="w-56 bg-zinc-900/95 backdrop-blur-xl border-white/10">
+                    <DropdownMenuItem onClick={() => navigate('/members/ia/copy')} className="hover:bg-white/10 focus:bg-white/10">
                       <FileText className="mr-2 h-4 w-4 text-primary" />
                       <span>IA de Copy</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/members/ia/criativo')} className="hover:bg-white/10">
+                    <DropdownMenuItem onClick={() => navigate('/members/ia/criativo')} className="hover:bg-white/10 focus:bg-white/10">
                       <Image className="mr-2 h-4 w-4 text-primary" />
                       <span>IA de Criativo</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/members/ia/campanha')} className="hover:bg-white/10">
+                    <DropdownMenuItem onClick={() => navigate('/members/ia/campanha')} className="hover:bg-white/10 focus:bg-white/10">
                       <BarChart3 className="mr-2 h-4 w-4 text-primary" />
                       <span>Analista de Campanha</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/members/ia/atendimento')} className="hover:bg-white/10">
+                    <DropdownMenuItem onClick={() => navigate('/members/ia/atendimento')} className="hover:bg-white/10 focus:bg-white/10">
                       <MessageSquare className="mr-2 h-4 w-4 text-primary" />
                       <span>Analista de Atendimento</span>
                     </DropdownMenuItem>
@@ -653,26 +668,26 @@ const Members = () => {
               {/* Mobile Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild className="md:hidden">
-                  <Button variant="ghost" size="icon" className="text-white">
+                  <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
                     <Menu className="h-5 w-5" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-56 bg-zinc-900 border-white/10">
-                  <DropdownMenuLabel>Ferramentas IA</DropdownMenuLabel>
+                <DropdownMenuContent align="start" className="w-56 bg-zinc-900/95 backdrop-blur-xl border-white/10">
+                  <DropdownMenuLabel className="text-white/50">Ferramentas IA</DropdownMenuLabel>
                   <DropdownMenuSeparator className="bg-white/10" />
-                  <DropdownMenuItem onClick={() => navigate('/members/ia/copy')} className="hover:bg-white/10">
+                  <DropdownMenuItem onClick={() => navigate('/members/ia/copy')} className="hover:bg-white/10 focus:bg-white/10">
                     <FileText className="mr-2 h-4 w-4 text-primary" />
                     <span>IA de Copy</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/members/ia/criativo')} className="hover:bg-white/10">
+                  <DropdownMenuItem onClick={() => navigate('/members/ia/criativo')} className="hover:bg-white/10 focus:bg-white/10">
                     <Image className="mr-2 h-4 w-4 text-primary" />
                     <span>IA de Criativo</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/members/ia/campanha')} className="hover:bg-white/10">
+                  <DropdownMenuItem onClick={() => navigate('/members/ia/campanha')} className="hover:bg-white/10 focus:bg-white/10">
                     <BarChart3 className="mr-2 h-4 w-4 text-primary" />
                     <span>Analista de Campanha</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/members/ia/atendimento')} className="hover:bg-white/10">
+                  <DropdownMenuItem onClick={() => navigate('/members/ia/atendimento')} className="hover:bg-white/10 focus:bg-white/10">
                     <MessageSquare className="mr-2 h-4 w-4 text-primary" />
                     <span>Analista de Atendimento</span>
                   </DropdownMenuItem>
@@ -681,8 +696,8 @@ const Members = () => {
             </div>
 
             {/* Right side - Actions */}
-            <div className="flex items-center gap-2 md:gap-4">
-              <Button variant="ghost" size="icon" className="text-white/70 hover:text-white hidden md:flex">
+            <div className="flex items-center gap-2 md:gap-3">
+              <Button variant="ghost" size="icon" className="text-white/70 hover:text-white hover:bg-white/10 hidden md:flex">
                 <Search className="h-5 w-5" />
               </Button>
 
@@ -690,7 +705,7 @@ const Members = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-white/70 hover:text-white gap-2 hidden md:flex"
+                  className="text-white/70 hover:text-white hover:bg-white/10 gap-2 hidden md:flex"
                   onClick={() => navigate('/admin')}
                 >
                   <Settings className="w-4 h-4" />
@@ -698,9 +713,9 @@ const Members = () => {
                 </Button>
               )}
 
-              <Button variant="ghost" size="icon" className="text-white/70 hover:text-white relative">
+              <Button variant="ghost" size="icon" className="text-white/70 hover:text-white hover:bg-white/10 relative">
                 <Bell className="h-5 w-5" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full" />
               </Button>
 
               {/* Profile Menu */}
@@ -710,13 +725,13 @@ const Members = () => {
                     variant="ghost"
                     className="flex items-center gap-2 px-2 hover:bg-white/10"
                   >
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-white font-bold text-sm">
+                    <div className="w-7 h-7 md:w-8 md:h-8 rounded-md bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-white font-bold text-sm">
                       {userInitial}
                     </div>
                     <ChevronDown className="h-4 w-4 text-white/70 hidden md:block" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 bg-zinc-900 border-white/10">
+                <DropdownMenuContent align="end" className="w-56 bg-zinc-900/95 backdrop-blur-xl border-white/10">
                   <DropdownMenuLabel>
                     <div className="flex flex-col space-y-1">
                       <p className="font-semibold text-white">{profile?.full_name || 'Usuário'}</p>
@@ -724,13 +739,13 @@ const Members = () => {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator className="bg-white/10" />
-                  <DropdownMenuItem onClick={() => navigate('/members')} className="hover:bg-white/10">
+                  <DropdownMenuItem onClick={() => navigate('/members')} className="hover:bg-white/10 focus:bg-white/10">
                     <User className="mr-2 h-4 w-4" />
                     <span>Meu Perfil</span>
                   </DropdownMenuItem>
                   {isAdminUser && (
                     <>
-                      <DropdownMenuItem onClick={() => navigate('/admin')} className="hover:bg-white/10">
+                      <DropdownMenuItem onClick={() => navigate('/admin')} className="hover:bg-white/10 focus:bg-white/10">
                         <Settings className="mr-2 h-4 w-4" />
                         <span>Painel Admin</span>
                       </DropdownMenuItem>
@@ -743,7 +758,7 @@ const Members = () => {
                       <span>Premium Ativo</span>
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem onClick={signOut} className="text-red-400 hover:bg-red-500/10">
+                  <DropdownMenuItem onClick={signOut} className="text-red-400 hover:bg-red-500/10 focus:bg-red-500/10">
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Sair</span>
                   </DropdownMenuItem>
@@ -754,59 +769,77 @@ const Members = () => {
         </div>
       </header>
 
-      {/* Hero Banner Section - Simplified for mobile */}
-      <div className="pt-16 sm:pt-20">
+      {/* Hero Banner Section */}
+      <div className="pt-14 md:pt-16">
         {siteSettings?.banner_image_url ? (
-          <div className="relative">
-            {/* Banner image with fixed aspect ratio */}
-            <div className="relative w-full aspect-[2/1] sm:aspect-[3/1] overflow-hidden">
-              <img
-                src={siteSettings.banner_image_url}
-                alt="Banner"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
-            </div>
+          <div className="netflix-hero">
+            {/* Banner image */}
+            <img
+              src={siteSettings.banner_image_url}
+              alt="Banner"
+              className="netflix-hero-image"
+            />
 
-            {/* Content overlay */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8">
-              <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-white mb-1">
+            {/* Gradient overlay */}
+            <div className="netflix-hero-gradient" />
+
+            {/* Content */}
+            <div className="netflix-hero-content animate-fade-in">
+              <h1 className="netflix-hero-title">
                 {siteSettings?.header_title || `Olá, ${firstName}!`}
               </h1>
               {siteSettings?.banner_text && (
-                <p className="text-sm sm:text-base text-white/70 max-w-xl line-clamp-2">
+                <p className="netflix-hero-subtitle">
                   {siteSettings.banner_text}
                 </p>
               )}
+              <div className="flex items-center gap-3 mt-4 md:mt-6">
+                <button className="netflix-btn-primary">
+                  <Play className="w-4 h-4 fill-current" />
+                  Continuar
+                </button>
+                <button className="netflix-btn-secondary">
+                  <Info className="w-4 h-4" />
+                  Mais informações
+                </button>
+              </div>
             </div>
           </div>
         ) : (
-          <div className="px-4 py-6 sm:py-8">
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">
-              Olá, {firstName}! 👋
-            </h1>
-            <p className="text-sm sm:text-base text-white/60 mt-1">
-              {siteSettings?.header_title || 'Pronto para evoluir?'}
-            </p>
+          <div className="px-4 md:px-8 py-8 md:py-12">
+            <div className="animate-fade-in">
+              <h1 className="text-2xl md:text-4xl font-bold text-white">
+                Olá, {firstName}! 👋
+              </h1>
+              <p className="text-sm md:text-base text-white/50 mt-2">
+                {siteSettings?.header_title || 'Pronto para evoluir?'}
+              </p>
+            </div>
           </div>
         )}
       </div>
 
       {/* Main Content */}
-      <main className="pb-8 sm:pb-12 space-y-6 sm:space-y-8">
+      <main className="pb-12 md:pb-16 space-y-6 md:space-y-10">
         {/* Continue Watching Section */}
         {layoutConfig.show_continue_watching && lessons.length > 0 && (
-          <section>
-            <HorizontalScrollSection title={layoutConfig.continue_watching_title}>
-              {getContinueWatchingLessons().map((lesson) => (
-                <LessonContinueCard
+          <section className="netflix-row">
+            <h2 className="netflix-row-title">{layoutConfig.continue_watching_title}</h2>
+            <HorizontalScrollSection title="">
+              {getContinueWatchingLessons().map((lesson, index) => (
+                <div
                   key={lesson.id}
-                  moduleTitle={lesson.moduleTitle}
-                  lessonTitle={lesson.title}
-                  lessonNumber={`Aula ${lesson.order}`}
-                  progress={lesson.progress}
-                  onClick={() => navigate(`/members/lesson/${lesson.id}`)}
-                />
+                  className="animate-fade-in"
+                  style={{ animationDelay: `${index * 80}ms` }}
+                >
+                  <LessonContinueCard
+                    moduleTitle={lesson.moduleTitle}
+                    lessonTitle={lesson.title}
+                    lessonNumber={`Aula ${lesson.order}`}
+                    progress={lesson.progress}
+                    onClick={() => navigate(`/members/lesson/${lesson.id}`)}
+                  />
+                </div>
               ))}
             </HorizontalScrollSection>
           </section>
@@ -817,14 +850,15 @@ const Members = () => {
 
         {/* Accelerator Section */}
         {layoutConfig.show_accelerator && (
-          <section className="px-4">
-            <h2 className="text-base sm:text-lg md:text-xl font-bold text-white mb-3">
-              {layoutConfig.accelerator_title}
-            </h2>
-            <div className="flex items-center justify-center h-32 sm:h-40 rounded-xl bg-white/5 border border-white/10">
+          <section className="netflix-row">
+            <h2 className="netflix-row-title">{layoutConfig.accelerator_title}</h2>
+            <div className="flex items-center justify-center h-36 md:h-48 rounded-lg bg-white/[0.03] border border-white/5">
               <div className="text-center">
-                <Sparkles className="w-8 h-8 text-primary/50 mx-auto mb-2" />
-                <p className="text-white/40 text-sm">Em breve!</p>
+                <div className="p-4 rounded-xl bg-white/5 mx-auto mb-4 w-fit animate-float">
+                  <Sparkles className="w-8 h-8 text-primary/60" />
+                </div>
+                <p className="text-white/40 text-sm font-medium">Em breve!</p>
+                <p className="text-white/25 text-xs mt-1">Novos conteúdos exclusivos</p>
               </div>
             </div>
           </section>
