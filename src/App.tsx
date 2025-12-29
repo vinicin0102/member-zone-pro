@@ -30,7 +30,7 @@ const App = () => {
       <AuthProvider>
         <SiteSettingsProvider>
           <TooltipProvider>
-            <div className="dark">
+            <>
               <Toaster />
               <Sonner />
               <BrowserRouter>
@@ -52,7 +52,7 @@ const App = () => {
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>
-            </div>
+            </>
           </TooltipProvider>
         </SiteSettingsProvider>
       </AuthProvider>

@@ -1,13 +1,35 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="dark">
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
+
+  <!-- CRITICAL: Prevent color flash - inline dark theme styles -->
+  <style>
+    /* Prevent flash of unstyled content */
+    html,
+    body {
+      background-color: #0a0a0a !important;
+      color: #fafafa !important;
+    }
+
+    /* Hide content until CSS loads */
+    #root {
+      opacity: 0;
+      transition: opacity 0.1s ease-in;
+    }
+
+    #root.loaded {
+      opacity: 1;
+    }
+  </style>
 
   <!-- PWA Meta Tags -->
-  <meta name="theme-color" content="#E50914" />
+  <meta name="theme-color" content="#0a0a0a" />
   <meta name="background-color" content="#0a0a0a" />
+  <meta name="color-scheme" content="dark" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="application-name" content="Member Zone Pro" />
 
@@ -18,7 +40,7 @@
   <meta name="format-detection" content="telephone=no" />
 
   <!-- Microsoft Tiles -->
-  <meta name="msapplication-TileColor" content="#E50914" />
+  <meta name="msapplication-TileColor" content="#0a0a0a" />
   <meta name="msapplication-TileImage" content="/icons/icon-144x144.png" />
   <meta name="msapplication-config" content="/browserconfig.xml" />
 
@@ -69,32 +91,29 @@
   <link rel="dns-prefetch" href="https://supabase.co" />
 </head>
 
-<body>
+<body class="dark" style="background-color: #0a0a0a; color: #fafafa;">
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
+
+  <!-- Show content after load -->
+  <script>
+    // Mark root as loaded when DOM is ready
+    document.addEventListener('DOMContentLoaded', function () {
+      setTimeout(function () {
+        document.getElementById('root').classList.add('loaded');
+      }, 50);
+    });
+  </script>
 
   <!-- Service Worker Registration -->
   <script>
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
+      window.addEventListener('load', function () {
         navigator.serviceWorker.register('/sw.js')
-          .then((registration) => {
+          .then(function (registration) {
             console.log('✅ ServiceWorker registrado:', registration.scope);
-
-            // Check for updates
-            registration.addEventListener('updatefound', () => {
-              const newWorker = registration.installing;
-              console.log('🔄 Nova versão do ServiceWorker encontrada');
-
-              newWorker.addEventListener('statechange', () => {
-                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  // New content available, show update prompt if needed
-                  console.log('📦 Nova versão disponível');
-                }
-              });
-            });
           })
-          .catch((error) => {
+          .catch(function (error) {
             console.error('❌ Erro ao registrar ServiceWorker:', error);
           });
       });

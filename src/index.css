@@ -129,15 +129,21 @@
     box-sizing: border-box;
   }
 
+  /* CRITICAL: Apply dark theme immediately to prevent flash */
   html {
     overflow-x: hidden;
     width: 100%;
     overscroll-behavior-y: none;
+    background-color: #0a0a0a;
+    color-scheme: dark;
   }
 
+  /* Force dark theme colors directly - no class needed */
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
     width: 100%;
     min-height: 100vh;
@@ -145,13 +151,36 @@
     padding: env(safe-area-inset-top) 0 0 0;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
-    /* Netflix dark background */
-    background: linear-gradient(180deg, #0a0a0a 0%, #141414 100%);
+    /* CRITICAL: Solid dark background - no gradient that could flash */
+    background-color: #0a0a0a;
+    color: #fafafa;
   }
 
+  /* Apply dark theme variables directly to root */
+  :root,
   html,
-  body {
-    @apply dark;
+  body,
+  .dark {
+    --background: 0 0% 4%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 92% 47%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14%;
+    --muted-foreground: 0 0% 55%;
+    --accent: 0 92% 47%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 63% 40%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 16%;
+    --input: 0 0% 14%;
+    --ring: 0 92% 47%;
+    --radius: 0.5rem;
   }
 
   #root {
@@ -159,26 +188,57 @@
     width: 100%;
     min-height: 100vh;
     min-height: 100dvh;
+    background-color: #0a0a0a;
   }
 
   .safe-area-bottom {
     padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
   }
 
+  /* Mobile responsiveness improvements */
   @media (max-width: 640px) {
     html {
-      font-size: 16px;
+      font-size: 15px;
+    }
+
+    body {
+      font-size: 15px;
+      line-height: 1.5;
     }
 
     button,
     a {
       -webkit-tap-highlight-color: transparent;
       user-select: none;
+      touch-action: manipulation;
     }
 
     img {
       max-width: 100%;
       height: auto;
+    }
+
+    /* Better touch targets */
+    button,
+    [role="button"],
+    input[type="button"],
+    input[type="submit"] {
+      min-height: 44px;
+      min-width: 44px;
+    }
+
+    /* Prevent zoom on input focus (iOS) */
+    input,
+    select,
+    textarea {
+      font-size: 16px !important;
+    }
+  }
+
+  /* Small phones */
+  @media (max-width: 375px) {
+    html {
+      font-size: 14px;
     }
   }
 
