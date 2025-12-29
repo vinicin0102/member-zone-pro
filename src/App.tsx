@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { SiteSettingsProvider } from "@/contexts/SiteSettingsContext";
 import { AuthGuard } from "@/components/members/AuthGuard";
 import { AdminGuard } from "@/components/members/AdminGuard";
+import { PWAInstallPrompt } from "@/components/pwa/PWAInstallPrompt";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Members from "./pages/Members";
@@ -33,6 +34,8 @@ const App = () => {
               <Toaster />
               <Sonner />
               <BrowserRouter>
+                {/* PWA Install Prompt */}
+                <PWAInstallPrompt />
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/auth" element={<Auth />} />

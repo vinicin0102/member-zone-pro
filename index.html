@@ -1,34 +1,105 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#E50914" />
+  <meta name="background-color" content="#0a0a0a" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="application-name" content="Member Zone Pro" />
+
+  <!-- iOS Meta Tags -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="MemberZone" />
   <meta name="format-detection" content="telephone=no" />
+
+  <!-- Microsoft Tiles -->
+  <meta name="msapplication-TileColor" content="#E50914" />
+  <meta name="msapplication-TileImage" content="/icons/icon-144x144.png" />
+  <meta name="msapplication-config" content="/browserconfig.xml" />
+
   <title>Member Zone Pro</title>
   <meta name="description" content="Sua área de membros exclusiva - Acesse conteúdos, cursos e comunidade premium" />
   <meta name="author" content="Member Zone Pro" />
+  <meta name="keywords" content="cursos, membros, área exclusiva, conteúdo premium" />
 
+  <!-- Manifest -->
+  <link rel="manifest" href="/manifest.json" />
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-96x96.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-72x72.png" />
   <link rel="icon" type="image/png" href="/logo.png" />
-  <link rel="apple-touch-icon" href="/logo.png" />
+  <link rel="shortcut icon" href="/favicon.ico" />
 
+  <!-- Apple Touch Icons -->
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+  <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png" />
+  <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-192x192.png" />
+
+  <!-- Apple Splash Screens -->
+  <link rel="apple-touch-startup-image" href="/icons/icon-512x512.png" />
+
+  <!-- Open Graph -->
   <meta property="og:title" content="Member Zone Pro" />
   <meta property="og:description"
     content="Sua área de membros exclusiva - Acesse conteúdos, cursos e comunidade premium" />
   <meta property="og:type" content="website" />
-  <meta property="og:image" content="/logo.png" />
+  <meta property="og:image" content="/icons/icon-512x512.png" />
+  <meta property="og:site_name" content="Member Zone Pro" />
+  <meta property="og:locale" content="pt_BR" />
 
+  <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Member Zone Pro" />
-  <meta name="twitter:image" content="/logo.png" />
+  <meta name="twitter:description"
+    content="Sua área de membros exclusiva - Acesse conteúdos, cursos e comunidade premium" />
+  <meta name="twitter:image" content="/icons/icon-512x512.png" />
+
+  <!-- Preconnect to important domains -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <!-- DNS Prefetch -->
+  <link rel="dns-prefetch" href="https://supabase.co" />
 </head>
 
 <body>
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('✅ ServiceWorker registrado:', registration.scope);
+
+            // Check for updates
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+              console.log('🔄 Nova versão do ServiceWorker encontrada');
+
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  // New content available, show update prompt if needed
+                  console.log('📦 Nova versão disponível');
+                }
+              });
+            });
+          })
+          .catch((error) => {
+            console.error('❌ Erro ao registrar ServiceWorker:', error);
+          });
+      });
+    }
+  </script>
 </body>
 
 </html>
