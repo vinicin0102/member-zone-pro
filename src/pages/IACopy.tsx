@@ -72,7 +72,9 @@ Por favor, gere:
 
 5. 💡 **DICAS DE MELHORIA** personalizadas
 
-Use emojis, formatação markdown e linguagem persuasiva. A copy deve estar pronta para copiar e usar.`;
+Use emojis, formatação markdown e linguagem persuasiva. A copy deve estar pronta para copiar e usar.
+    
+IMPORTANTE: NÃO me dê instruções de como fazer. NÃO explique o processo. APENAS GERE O TEXTO FINAL solicitado.`;
 
     return await callGeminiAPI(prompt, AI_SYSTEM_PROMPTS.copy);
   };

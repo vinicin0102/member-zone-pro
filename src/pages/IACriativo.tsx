@@ -84,7 +84,9 @@ Por favor, gere:
 
 7. 💡 **DICAS DE PRODUÇÃO** personalizadas
 
-Use emojis, seja criativo e inovador. Pense em tendências atuais de redes sociais.`;
+Use emojis, seja criativo e inovador. Pense em tendências atuais de redes sociais.
+    
+IMPORTANTE: NÃO me dê instruções de como fazer. NÃO descreva o processo. APENAS GERE O CONTEÚDO FINAL solicitado.`;
 
     return await callGeminiAPI(prompt, AI_SYSTEM_PROMPTS.criativo);
   };

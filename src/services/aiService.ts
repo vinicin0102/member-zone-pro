@@ -113,165 +113,119 @@ function getSimulatedResponse(prompt: string, systemPrompt?: string): string {
     const lowerPrompt = prompt.toLowerCase();
 
     // IA de Copy
-    if (systemPrompt?.includes('copywriter') || systemPrompt?.includes('copy')) {
-        if (lowerPrompt.includes('título') || lowerPrompt.includes('headline')) {
-            return `📝 **Sugestões de Títulos:**
+    if (systemPrompt?.includes('copywriter') || systemPrompt?.includes('copy') || systemPrompt?.includes('Copywriter')) {
+        return `⚠️ **AVISO: MODO DEMONSTRAÇÃO (SEM API KEY)**
+Para gerar copies reais com inteligência artificial, você precisa configurar sua chave da OpenAI ou Gemini no arquivo .env.
 
-1. **"${prompt.slice(0, 50)}... - Descubra o Segredo"**
-2. **"O Guia Definitivo: ${prompt.slice(0, 40)}..."**
-3. **"Como [Resultado] em [Tempo] Usando ${prompt.slice(0, 30)}..."**
+Como estou no modo demonstração, aqui está um exemplo de como seria a estrutura:
 
-💡 **Dicas para títulos que convertem:**
-- Use números (Ex: "7 Passos para...")
-- Crie urgência (Ex: "Antes que acabe...")
-- Prometa benefício claro
-- Use palavras de poder (Grátis, Novo, Exclusivo)
+---
 
-Quer que eu crie mais variações?`;
-        }
+# 📌 3 OPÇÕES DE HEADLINE
 
-        return `✍️ **Copy Gerada:**
+1. **DESCUBRA O MÉTODO**: Como transformar seu corpo em 30 dias sem dietas malucas
+2. **PARE DE PERDER TEMPO**: O guia definitivo para emagrecer com saúde
+3. **EXCLUSIVO**: O segredo que as academias não querem que você saiba
 
-${prompt}
+# 📝 COPY COMPLETA
 
-**Versão Otimizada para Conversão:**
+**[Abertura]**
+Você já se sentiu frustrada por tentar de tudo e não ver resultados? Eu sei como é. A sensação de nadar contra a maré e continuar no mesmo lugar é desanimadora.
 
-"${prompt}"
+**[Desenvolvimento]**
+Mas e se eu te dissesse que o problema não é você, mas sim o método que você está usando? Nosso programa foi desenvolvido por especialistas para ativar o metabolismo natural do seu corpo.
+- Sem passar fome
+- Sem horas na academia
+- Com resultados visíveis na primeira semana
 
-🎯 **Elementos de Persuasão Usados:**
-- ✓ Headline chamativa
-- ✓ Benefícios claros
-- ✓ Prova social
-- ✓ Call-to-action forte
+**[CTA]**
+Não deixe para amanhã o corpo que você pode começar a construir hoje. Clique no botão abaixo e inscreva-se agora com 50% de desconto!
 
-📱 **Adaptações sugeridas:**
-- **Instagram:** Use emojis e quebre em parágrafos curtos
-- **Facebook Ads:** Destaque o benefício principal na primeira linha
-- **Email:** Personalize com o nome do lead
+# 🎯 VARIAÇÕES DE CTA
+1. "Quero minha transformação agora!"
+2. "Sim, eu aceito o desafio!"
+3. "Começar minha jornada hoje"
 
-Posso ajustar o tom ou criar variações?`;
+---
+
+*Para ver a IA gerando conteúdo real baseado nas suas respostas, configure a API Key.*`;
     }
 
     // IA Criativa
-    if (systemPrompt?.includes('criativ') || systemPrompt?.includes('campanha')) {
-        return `🎨 **Ideias Criativas para sua Campanha:**
+    if (systemPrompt?.includes('criativ') || systemPrompt?.includes('campanha') || systemPrompt?.includes('Criativo')) {
+        return `⚠️ **AVISO: MODO DEMONSTRAÇÃO (SEM API KEY)**
+Para gerar ideias criativas reais, configure sua chave de API.
 
-Baseado na sua solicitação: "${prompt.slice(0, 100)}..."
+Exemplo de estrutura de resposta:
 
-**💡 Conceito Principal:**
-Uma campanha que conecta emocionalmente com seu público através de storytelling visual.
+# 🎨 CONCEITO CRIATIVO: "Transformação Real"
 
-**🎯 Direções Criativas:**
+**Mensagem Central:** A beleza de ser você mesma, na sua melhor versão.
+**Moodboard:** Tons pastéis, fotografia natural, luz do dia.
 
-1. **Storytelling Emocional**
-   - Mostre a transformação do cliente
-   - Use depoimentos reais em vídeo curto
+# 📱 5 IDEIAS DE CONTEÚDO
 
-2. **Before & After**
-   - Visualização clara dos resultados
-   - Comparativo impactante
+1. **Reels "Dia Comigo"**: Bastidores do uso do produto.
+2. **Carrossel Educativo**: "3 Mitos sobre [Tema]".
+3. **Depoimento**: Vídeo curto de cliente satisfeita.
+4. **Meme**: Algo relacionável sobre o problema que o produto resolve.
+5. **Dica Rápida**: Como ter x resultado em 5 minutos.
 
-3. **User Generated Content**
-   - Incentive clientes a criar conteúdo
-   - Reposte as melhores histórias
-
-**📱 Formatos Sugeridos:**
-- Reels/TikTok (15-30 segundos)
-- Carrossel (7-10 slides)
-- Stories interativos
-
-**🏷️ Hashtags:**
-#Marketing #Resultados #Transformação #Sucesso
-
-Quer que eu detalhe alguma dessas ideias?`;
-    }
-
-    // Analista de Campanha
-    if (systemPrompt?.includes('analista') || systemPrompt?.includes('métricas')) {
-        return `📊 **Análise da sua Campanha:**
-
-Com base nas informações fornecidas, aqui está minha análise:
-
-**📈 Métricas Identificadas:**
-- CTR: Aparenta estar na média (1-2%)
-- CPC: Custo por clique detectado
-- CPM: Custo por mil impressões
-
-**⚠️ Pontos de Atenção:**
-
-1. **Otimização de Público**
-   - Revise a segmentação
-   - Teste públicos semelhantes
-   - Exclua públicos de baixa conversão
-
-2. **Criativos**
-   - Faça testes A/B
-   - Varie as chamadas para ação
-   - Teste diferentes formatos
-
-3. **Orçamento**
-   - Redistribua para anúncios que performam
-   - Pause os de baixo desempenho
-
-**💡 Recomendações:**
-1. Pausar anúncios com CTR < 1%
-2. Aumentar budget nos que convertem
-3. Criar variações dos melhores criativos
-
-Envie um print do gerenciador para análise mais detalhada!`;
+*Para ver a IA trabalhando de verdade, configure a API Key.*`;
     }
 
     // Resposta genérica
-    return `Olá! Recebi sua mensagem: "${prompt.slice(0, 100)}..."
+    return `⚠️ **AVISO: MODO DEMONSTRAÇÃO**
+Não foi possível conectar com a API de Inteligência Artificial. Por favor, verifique sua chave de API no arquivo .env.
 
-Posso ajudar você com:
-- 📝 Criação de copies persuasivas
-- 🎨 Ideias criativas para campanhas
-- 📊 Análise de performance de anúncios
-- 💬 Scripts de atendimento
-
-Como posso ajudar você hoje?`;
+Sua solicitação foi:
+"${prompt.slice(0, 100)}..."`;
 }
 
 // Prompts do sistema para cada IA
 export const AI_SYSTEM_PROMPTS = {
-    copy: `Você é um especialista em copywriting e marketing digital. Seu papel é ajudar a criar textos persuasivos, títulos chamativos, CTAs efetivos e copies para diferentes canais (redes sociais, emails, landing pages, anúncios).
+    copy: `Você é um Copywriter Senior de classe mundial e especialista em Marketing Digital.
+SEU OBJETIVO: Escrever copies prontas para uso, altamente persuasivas e focadas em conversão.
+NÃO DÊ AULAS. NÃO EXPLIQUE O QUE VAI FAZER. APENAS FAÇA.
 
-Diretrizes:
-- Sempre forneça exemplos práticos
-- Use gatilhos mentais apropriados
-- Adapte o tom conforme o canal
-- Sugira melhorias e variações
-- Use formatação markdown para organizar
-- Responda sempre em português brasileiro`,
+Ao receber as informações:
+1. Gere IMEDIATAMENTE as headlines solicitadas.
+2. Escreva a copy completa com Lead, Corpo e CTA.
+3. Entregue exatamente o que foi pedido na estrutura solicitada.
+4. Use linguagem persuasiva (gatilhos mentais, storytelling, AIDA).
+5. Se comporte como se você estivesse entregando o trabalho final para um cliente pagante.
+6. Use emojis de forma estratégica e formatação Markdown impecável.
+7. Responda sempre em PORTUGUÊS BRASILEIRO.`,
 
-    criativo: `Você é um diretor criativo especializado em campanhas digitais. Seu papel é gerar ideias criativas, conceitos visuais, estratégias de conteúdo e sugestões para campanhas de marketing.
+    criativo: `Você é um Diretor Criativo premiado com expertise em Social Media e Branding.
+SEU OBJETIVO: Gerar ideias concretas, roteiros prontos e planejamentos acionáveis.
+NÃO SEJA GENÉRICO. SEJA ESPECÍFICO E PRÁTICO.
 
-Diretrizes:
-- Seja criativo e inovador
-- Sugira múltiplas direções
-- Pense em diferentes formatos (vídeo, imagem, carrossel)
-- Considere as tendências atuais
-- Use formatação markdown para organizar
-- Responda sempre em português brasileiro`,
+Ao receber as informações:
+1. Crie conceitos únicos e memoráveis.
+2. Para ideias de conteúdo, descreva exatamente o que deve aparecer na imagem/vídeo e escreva a legenda sugerida.
+3. Para roteiros, detalhe a cena, a fala e a ação visual.
+4. Entregue um trabalho pronto para ser enviado ao time de design/vídeo.
+5. Use formatação Markdown clara.
+6. Responda sempre em PORTUGUÊS BRASILEIRO.`,
 
-    campanha: `Você é um analista de performance de mídia paga. Seu papel é analisar métricas de campanhas de anúncios (Facebook Ads, Google Ads, etc) e fornecer insights e recomendações de otimização.
+    campanha: `Você é um Gestor de Tráfego e Analista de Data Science Sênior.
+SEU OBJETIVO: Analisar dados e dar diretrizes exatas de otimização.
+NÃO FALE O ÓBVIO. DÊ INSIGHTS PROFUNDOS.
 
-Diretrizes:
-- Analise CTR, CPC, CPM, ROAS e outras métricas
-- Identifique problemas e oportunidades
-- Sugira ações práticas de otimização
-- Indique quais anúncios pausar ou escalar
-- Use formatação markdown para organizar
-- Responda sempre em português brasileiro`,
+Ao receber as métricas:
+1. Faça um diagnóstico direto.
+2. Diga exatamente o que fazer: "Pare este anúncio", "Aumente o orçamento daquele", "Mude o criativo para X".
+3. Baseie suas recomendações em lógica de funil de vendas e ROI.
+4. Responda sempre em PORTUGUÊS BRASILEIRO.`,
 
-    atendimento: `Você é um especialista em atendimento e vendas. Seu papel é criar scripts de vendas, mensagens de boas-vindas, pitch de vendas, roteiros de follow-up e estratégias de pós-venda.
+    atendimento: `Você é um Especialista em Customer Success e Vendas.
+SEU OBJETIVO: Criar scripts que fecham vendas e encantam clientes.
+NÃO SEJA ROBÓTICO. SEJA HUMANO E PERSUASIVO.
 
-Diretrizes:
-- Crie scripts personalizados e humanizados
-- Inclua tratamento de objeções
-- Sugira sequências de mensagens
-- Use tom profissional mas acolhedor
-- Use formatação markdown para organizar
-- Responda sempre em português brasileiro`
+Ao receber a solicitação:
+1. Escreva o script exato para ser copiado e colado no WhatsApp/Direct.
+2. Inclua variações para diferentes reações do cliente.
+3. Use técnicas de PNL e empatia.
+4. Responda sempre em PORTUGUÊS BRASILEIRO.`
 };
